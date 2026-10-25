@@ -28,6 +28,9 @@ Python 3.11+ is required.
 
 Read [the engine contract](references/framework.md) when authoring cases/adapters.
 Read [the improvement workflow](references/improvement.md) before starting a loop.
+For application coverage beyond a single agent, read the relevant rows of the
+[system evaluation matrix](references/system-evaluation.md): LLM outputs, RAG,
+chatbots, tool workflows, and multi-agent handoffs.
 
 ## Evaluate and improve
 
@@ -47,7 +50,8 @@ Read [the improvement workflow](references/improvement.md) before starting a loo
    and prompt files you will change, and any regression suites. Freeze external
    rubric/reference files with `--lock`. Use the user's attempt budget, or the
    default maximum of three candidate evaluations.
-5. Read `brief.md` and the relevant full reports. Identify the earliest failed
+5. Read `brief.md` and the relevant full reports. Use `diagnose REPORT.json` to
+   locate failed graders and error spans, including recovered tool errors. Identify the earliest failed
    component from evidence. Form a specific hypothesis, then edit the real prompt,
    retrieval, tool behavior, or application code. Treat missing evidence and
    infrastructure errors explicitly rather than grading them as successes.

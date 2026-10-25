@@ -2,6 +2,7 @@
 
 `init [directory]`, `validate <suite.json>`, `run <suite.json> [--trials N]
 [--output report.json]`, `report <report.json>`, `compare <baseline> <candidate>`,
+`diagnose <report.json> [--output diagnosis.json]`,
 and `doctor` are supported by the bundled `scripts/evals.py` entrypoint.
 For the complete person-and-coding-agent feedback loop, use
 `improve start/check/brief/status/finish`; see [the improvement workflow](improvement.md).

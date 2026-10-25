@@ -1,5 +1,22 @@
 # Live verification
 
+## Version 0.2.1: five system categories
+
+The production-style lab was run end to end on 2026-10-25 with actual configured
+model inference, local HTTP tools, transactional SQLite side effects and persisted
+traces. It covers standalone LLM calls, RAG, multi-turn chatbots, multi-agent
+handoffs and tool workflows.
+
+The frozen primary suite improved from **1/16 to 16/16**, using one candidate
+attempt, with zero evaluation errors and no case/grader regressions. A protected
+three-case regression suite passed, then two monitoring iterations each passed
+3/3 with no alerts. There were 56 model calls and 44 request traces. All 57
+automated tests pass. These are observed synthetic-lab results, not customer
+production traffic or broad reliability estimates.
+
+See the [scenario matrix and reproduction guide](production-lab.md) and the
+[captured evidence](evidence/production-lab-2026-10-25.json).
+
 ## Version 0.2.0: the complete improvement loop
 
 Verified on 2026-10-25 with Codex CLI 0.164.0 and Claude Code 2.1.310 on Windows.

@@ -43,6 +43,12 @@ Read the [end-to-end workflow](docs/improvement-workflow.md). An
 [actual LLM example](examples/llm_prompt) demonstrates improving a system prompt;
 the optional CLI-based example uses your configured model and account allowance.
 
+The [production-style test lab](docs/production-lab.md) exercises LLM contracts,
+RAG, multi-turn chatbots, tool agents, and multi-agent handoffs. It records traces,
+reproduces architecture failures, applies the repository's repair, re-evaluates
+the same cases, and runs a monitoring check. Live models and deterministic CI
+checks are explicitly separated.
+
 ## 1. Use with Claude Code or Codex
 
 Codex CLI:
