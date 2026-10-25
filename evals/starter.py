@@ -29,19 +29,21 @@ def evaluate(request):
 
 SUITE = {
     "schema_version": 1, "name": "demo-fixtures", "mode": "live", "trials": 1,
+    "coverage_categories": ["llm", "rag", "tools", "chatbot", "multi_agent"],
+    "provenance": {"label": "Deterministic demo fixtures; no model inference"},
     "target": {"type": "python", "path": "app.py", "function": "evaluate", "timeout_seconds": 10},
     "cases": [
-        {"id": "llm-answer", "input": {"task": "answer", "question": "What is the capital of France?"},
+        {"id": "llm-answer", "category": "llm", "input": {"task": "answer", "question": "What is the capital of France?"},
          "graders": [{"id": "correct-answer", "type": "equals", "expected": "Paris"}]},
-        {"id": "rag-retrieval", "input": {"task": "retrieve", "question": "What is the returns window?"},
+        {"id": "rag-retrieval", "category": "rag", "input": {"task": "retrieve", "question": "What is the returns window?"},
          "graders": [{"id": "relevant-documents", "type": "retrieval_recall", "expected": ["returns-policy"]},
                      {"id": "window-mentioned", "type": "contains", "expected": "30 days"}]},
-        {"id": "agent-refund", "input": {"task": "refund", "customer_id": "c1", "order_id": "o1"},
+        {"id": "agent-refund", "category": "tools", "input": {"task": "refund", "customer_id": "c1", "order_id": "o1"},
          "graders": [{"id": "verified-before-refund", "type": "tool_calls", "ordered": True,
                       "expected": [{"name": "verify_identity", "arguments": {"customer_id": "c1"}},
                                    {"name": "refund", "arguments": {"order_id": "o1"}}]},
                      {"id": "refund-exists", "type": "equals", "path": "/state/refund/status", "expected": "processed"}]},
-        {"id": "conversation-constraint", "input": {"task": "conversation"},
+        {"id": "conversation-constraint", "category": "chatbot", "input": {"task": "conversation"},
          "graders": [{"id": "preference-retained", "type": "contains", "path": "/messages/3/content", "expected": "vegetarian"}]},
     ],
 }

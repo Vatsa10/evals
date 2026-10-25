@@ -28,12 +28,23 @@ def main(argv=None):
     run.add_argument("--store", type=Path, help="SQLite history path (default: .evals/evals.db)")
     report = commands.add_parser("report", help="Read a saved report")
     report.add_argument("path", type=Path)
+    summary = commands.add_parser("summarize", help="Show provenance, case/trial counts and category coverage")
+    summary.add_argument("path", type=Path)
+    summary.add_argument("--output", type=Path)
+    site = commands.add_parser("report-site", help="Build an offline report page and content-versioned summary snapshot")
+    site.add_argument("path", type=Path)
+    site.add_argument("--baseline", type=Path)
+    site.add_argument("--output", type=Path, required=True)
+    snapshot = commands.add_parser("verify-snapshot", help="Check a report snapshot's content hash")
+    snapshot.add_argument("path", type=Path)
     diagnose = commands.add_parser("diagnose", help="Summarize failed graders and component trace evidence")
     diagnose.add_argument("path", type=Path)
     diagnose.add_argument("--output", type=Path)
     compare = commands.add_parser("compare", help="Compare case success rates on the same dataset")
     compare.add_argument("baseline", type=Path)
     compare.add_argument("candidate", type=Path)
+    compare.add_argument("--shared-only", action="store_true", help="Exploratory compatible-case overlap; cannot verify an improvement")
+    compare.add_argument("--output", type=Path)
     monitoring = commands.add_parser("monitor", help="Continuously evaluate a suite and record regression alerts")
     monitoring.add_argument("suite")
     monitoring.add_argument("--interval", type=float, default=60)
@@ -103,6 +114,23 @@ def main(argv=None):
         elif args.command == "report":
             result = json.loads(args.path.read_text(encoding="utf-8-sig"))
             print(json.dumps(result, indent=2))
+        elif args.command == "summarize":
+            from evals.artifacts import read_json
+            from evals.reporting import summarize_report
+            result = summarize_report(read_json(args.path))
+            if args.output:
+                write_report(args.output, result)
+            print(json.dumps(result, indent=2))
+        elif args.command == "report-site":
+            from evals.artifacts import read_json
+            from evals.report_site import build_report_site
+            result = build_report_site(read_json(args.path), args.output,
+                                       read_json(args.baseline) if args.baseline else None)
+            print(json.dumps(result, indent=2))
+        elif args.command == "verify-snapshot":
+            from evals.artifacts import read_json
+            from evals.report_site import verify_snapshot
+            print(f"Valid snapshot: {verify_snapshot(read_json(args.path))}")
         elif args.command == "diagnose":
             from evals.artifacts import read_json
             from evals.diagnostics import diagnose_report
@@ -111,10 +139,16 @@ def main(argv=None):
                 write_report(args.output, result)
             print(json.dumps(result, indent=2))
         elif args.command == "compare":
-            baseline = json.loads(args.baseline.read_text(encoding="utf-8-sig"))
-            candidate = json.loads(args.candidate.read_text(encoding="utf-8-sig"))
-            difference = compare_reports(baseline, candidate)
+            from evals.artifacts import read_json
+            from evals.reporting import compare_shared_reports
+            baseline = read_json(args.baseline)
+            candidate = read_json(args.candidate)
+            difference = compare_shared_reports(baseline, candidate) if args.shared_only else compare_reports(baseline, candidate)
+            if args.output:
+                write_report(args.output, difference)
             print(json.dumps(difference, indent=2))
+            if args.shared_only and not difference["shared_cases"]:
+                return 2
             return int(bool(difference["regressions"] or difference["metric_regressions"]) or difference["candidate_errors"] > 0)
         elif args.command == "monitor":
             baseline = json.loads(args.baseline.read_text(encoding="utf-8-sig")) if args.baseline else None

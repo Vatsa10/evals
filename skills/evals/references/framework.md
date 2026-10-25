@@ -3,6 +3,8 @@
 `init [directory]`, `validate <suite.json>`, `run <suite.json> [--trials N]
 [--output report.json]`, `report <report.json>`, `compare <baseline> <candidate>`,
 `diagnose <report.json> [--output diagnosis.json]`,
+`summarize <report.json>`, `report-site <candidate> --baseline <baseline> --output DIR`,
+`verify-snapshot <snapshot.json>`,
 and `doctor` are supported by the bundled `scripts/evals.py` entrypoint.
 For the complete person-and-coding-agent feedback loop, use
 `improve start/check/brief/status/finish`; see [the improvement workflow](improvement.md).
@@ -123,5 +125,8 @@ Comparisons require the same cases, inputs, grading contract, mode, and direct
 Python custom-grader source. They report observed case success-rate and mean
 grader-score changes, and fail on case/grader regressions or candidate errors.
 These are point comparisons, not significance estimates. Dependency trees, remote model versions,
-and command-adapter source are not automatically fingerprinted; pin these in the
+and PATH-resolved command executables are not automatically fingerprinted; pin these in the
 project when reproducibility requires it.
+
+Local command-adapter file arguments are fingerprinted. For provenance, category
+coverage and exploratory compatible-case comparisons, see [reporting](reporting.md).

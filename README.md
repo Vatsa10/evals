@@ -189,6 +189,23 @@ In another terminal, read `http://127.0.0.1:8765/health` or `/api/traces`.
 `evals export TRACE_ID --policy POLICY --output captured.json` creates a recorded
 regression suite. Create a live suite from its input to verify a fix.
 
+## Review and share evaluation evidence
+
+Reports include provenance and category coverage, including explicit untested
+categories. Create an offline report page with saved filters and a versioned
+summary snapshot:
+
+```console
+evals summarize .evals/candidate.json
+evals report-site .evals/candidate.json --baseline .evals/baseline.json --output .evals/review
+```
+
+Open `.evals/review/index.html`. For evolving datasets, `evals compare BEFORE AFTER
+--shared-only` lists compatible and excluded cases; improvement verification keeps
+its strict same-dataset gate. See the [complete reporting guide](docs/reporting.md).
+The [captured report example](website/reports/production) comes from a live
+six-case run across five system categories, with vision explicitly untested.
+
 ## Evaluation behavior
 
 - Graders check exact values, substrings, patterns, JSON, numeric limits, tool

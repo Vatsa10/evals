@@ -8,7 +8,7 @@ def cases():
     rows = []
 
     def add(identifier, data, expected, **extra):
-        rows.append({"id": identifier, "input": data, "expected": expected,
+        rows.append({"id": identifier, "category": data["flow"], "input": data, "expected": expected,
                      "graders": [{"id": "outcome-and-trajectory", "type": "custom",
                                   "adapter": {"type": "python", "path": "judge.py"}}, *extra.get("graders", [])]})
 
@@ -70,6 +70,7 @@ def write_suites(root):
     root = Path(root)
     rows = cases()
     suite = {"schema_version": 1, "name": "production-lab-all-categories", "mode": "live", "trials": 1,
+             "coverage_categories": ["llm", "rag", "chatbot", "multi_agent", "tools"],
              "target": {"type": "python", "path": "app.py", "timeout_seconds": 600}, "cases": rows}
     (root / "suite.json").write_text(json.dumps(suite, indent=2) + "\n", encoding="utf-8")
     # Frozen independent smoke set, suitable for post-change monitoring too.

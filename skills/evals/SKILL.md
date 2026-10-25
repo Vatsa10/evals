@@ -28,6 +28,8 @@ Python 3.11+ is required.
 
 Read [the engine contract](references/framework.md) when authoring cases/adapters.
 Read [the improvement workflow](references/improvement.md) before starting a loop.
+For provenance, category coverage, evolving-dataset comparisons or a shareable
+report page, read [reporting](references/reporting.md).
 For application coverage beyond a single agent, read the relevant rows of the
 [system evaluation matrix](references/system-evaluation.md): LLM outputs, RAG,
 chatbots, tool workflows, and multi-agent handoffs.
@@ -70,6 +72,9 @@ chatbots, tool workflows, and multi-agent handoffs.
    regression results, remaining gaps, session directory, and decision status.
    Distinguish `baseline_satisfied` from an improvement and `not_verified` from
    success. A stochastic run is observed evidence, not universal proof.
+   Use `summarize REPORT.json` to expose provenance and untested categories. For
+   a review artifact, use `report-site CANDIDATE --baseline BASELINE --output DIR`.
+   Shared-case comparisons are exploratory and cannot replace the strict gate.
 
 Keep scope clear. The framework does not automatically edit arbitrary systems or
 change business goals. You perform the application work through the host's normal

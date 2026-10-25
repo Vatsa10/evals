@@ -7,22 +7,24 @@ packages. No upstream code or dataset was copied into the Evals implementation.
 
 ModelBeats primarily catalogs and compares model benchmark results. Evals executes
 application evaluations and verifies changes with coding agents. The following
-ideas are candidates for future implementation, not newly shipped capabilities.
+ideas are implemented for application evaluations in version 0.3.0. See the
+[end-to-end reporting guide](reporting.md) for commands, schemas and limits.
 
-| Observed idea | Application to Evals |
+| Observed idea | Implemented in Evals |
 | --- | --- |
-| Result rows retain source type, source URL and optional evaluation date | Label measured, imported and provider-reported results; retain provider/model/configuration and evidence provenance |
-| Missing benchmark values remain null; ranking eligibility requires coverage | Show tested categories, case counts and trial counts beside scores; distinguish untested behavior from failed behavior |
-| Comparison separates shared and one-sided benchmark coverage | Compare compatible shared cases and expose excluded cases explicitly; preserve our current strict frozen-contract gate for improvement verification |
-| Validate data, derive results, then publish content-versioned snapshots | Generate reproducible static run summaries from saved reports/traces, retaining contract hashes and source links |
-| Pure shared scoring/selectors with contract tests | Keep aggregation and comparison logic independent of any future report UI |
-| URL parameters preserve comparison state | Make future report filters and baseline/candidate selections shareable |
+| Result provenance | Reports label measured, recorded, imported and provider-reported evidence; retain source URL/date and distinguish declared from adapter-reported model metadata |
+| Honest missing coverage | Explicit case categories and declared category inventory; `summarize` exposes case/trial counts, errors and null rates for untested categories |
+| Shared and one-sided comparisons | `compare --shared-only` validates per-case contracts, lists exclusions, and remains ineligible for improvement verification |
+| Content-versioned artifacts | `report-site` builds an offline HTML page and SHA-256-versioned JSON summary; `verify-snapshot` detects content changes |
+| Pure shared functions | `evals.reporting` handles summary validation, coverage and exploratory comparison for both CLI and UI |
+| URL-backed state | Report filters retain run, category, result, coverage and search in the URL, with browser back/forward |
 
-The strongest initial fit is explicit provenance and coverage in report summaries.
-Evals already retains dataset hashes, source fingerprints, per-case results and
-local evidence; a summary could expose those facts more clearly without claiming
-unmeasured coverage. An overall model ranking would require its own comparable
-dataset, missing-data policy and statistical justification.
+These features expose existing execution evidence and its scope. Raw prompts,
+responses, traces and configuration values stay out of the portable summary;
+full evidence remains in the local reports. Default comparisons and improvement
+verification keep their strict frozen-contract requirements. An overall model
+ranking still requires its own comparable dataset, missing-data policy and
+statistical justification; no universal model ranking is introduced.
 
 ## Source anchors
 

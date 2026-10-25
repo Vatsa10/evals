@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evals-framework"
-version = "0.2.1"
+version = "0.3.0"
 description = "Independent evaluation engine and workflows for Claude Code and Codex"
 requires-python = ">=3.11"
 dependencies = []
@@ -16,3 +16,6 @@ evals = "evals.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["evals*"]
+
+[tool.setuptools.package-data]
+evals = ["assets/*.html"]

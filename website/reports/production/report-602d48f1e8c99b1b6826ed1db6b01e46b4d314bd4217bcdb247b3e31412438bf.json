@@ -1,0 +1,586 @@
+{
+  "schema_version": 1,
+  "runs": {
+    "candidate": {
+      "schema_version": 1,
+      "suite": "production-lab-all-categories",
+      "mode": "live",
+      "started_at": "2026-10-25T09:23:09.262887+00:00",
+      "dataset_sha256": "12fb36116fcc5819db9bea2f909951042ae0104297aaab054a19eac1c4b4be6d",
+      "engine_version": "0.3.0",
+      "summary": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "error": 0,
+        "success_rate": 1.0
+      },
+      "provenance": {
+        "kind": "measured",
+        "execution": "adapter_run",
+        "executed_at": "2026-10-25T09:23:09.262887+00:00",
+        "source": {
+          "label": "Live models; synthetic application data"
+        },
+        "adapter_reported": {
+          "providers": [],
+          "model_ids": [
+            "claude-opus-5-5"
+          ],
+          "model_modes": [
+            "live"
+          ]
+        },
+        "declared_environment": {
+          "provider": "claude-code-cli"
+        },
+        "configuration_sha256": "8529755847b5db543cda53f25887e48560c13225effc8ca17cbb801888c84382"
+      },
+      "coverage": [
+        {
+          "category": "chatbot",
+          "cases": 2,
+          "trials": 2,
+          "passed": 2,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "evaluated_trials": 2,
+          "status": "tested"
+        },
+        {
+          "category": "llm",
+          "cases": 1,
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "multi_agent",
+          "cases": 1,
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "rag",
+          "cases": 1,
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "tools",
+          "cases": 1,
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "vision",
+          "cases": 0,
+          "trials": 0,
+          "passed": 0,
+          "failed": 0,
+          "error": 0,
+          "success_rate": null,
+          "evaluated_trials": 0,
+          "status": "untested"
+        }
+      ],
+      "cases": [
+        {
+          "id": "llm-quantity-and-currency",
+          "category": "llm",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "rag-current-policy",
+          "category": "rag",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "chatbot-retains-preference",
+          "category": "chatbot",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "chatbot-session-isolation",
+          "category": "chatbot",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "multi-agent-reviewed-handoff",
+          "category": "multi_agent",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "tools-response-lost-after-commit",
+          "category": "tools",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        }
+      ],
+      "scope": "Observed cases and trials only; adapter execution does not establish live model inference."
+    },
+    "baseline": {
+      "schema_version": 1,
+      "suite": "production-lab-all-categories",
+      "mode": "live",
+      "started_at": "2026-10-25T09:22:00.511706+00:00",
+      "dataset_sha256": "12fb36116fcc5819db9bea2f909951042ae0104297aaab054a19eac1c4b4be6d",
+      "engine_version": "0.3.0",
+      "summary": {
+        "total": 6,
+        "passed": 1,
+        "failed": 5,
+        "error": 0,
+        "success_rate": 0.16666666666666666
+      },
+      "provenance": {
+        "kind": "measured",
+        "execution": "adapter_run",
+        "executed_at": "2026-10-25T09:22:00.511706+00:00",
+        "source": {
+          "label": "Live models; synthetic application data"
+        },
+        "adapter_reported": {
+          "providers": [],
+          "model_ids": [
+            "claude-opus-5-5"
+          ],
+          "model_modes": [
+            "live"
+          ]
+        },
+        "declared_environment": {
+          "provider": "claude-code-cli"
+        },
+        "configuration_sha256": "8529755847b5db543cda53f25887e48560c13225effc8ca17cbb801888c84382"
+      },
+      "coverage": [
+        {
+          "category": "chatbot",
+          "cases": 2,
+          "trials": 2,
+          "passed": 1,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.5,
+          "evaluated_trials": 2,
+          "status": "tested"
+        },
+        {
+          "category": "llm",
+          "cases": 1,
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "multi_agent",
+          "cases": 1,
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "rag",
+          "cases": 1,
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "tools",
+          "cases": 1,
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "evaluated_trials": 1,
+          "status": "tested"
+        },
+        {
+          "category": "vision",
+          "cases": 0,
+          "trials": 0,
+          "passed": 0,
+          "failed": 0,
+          "error": 0,
+          "success_rate": null,
+          "evaluated_trials": 0,
+          "status": "untested"
+        }
+      ],
+      "cases": [
+        {
+          "id": "llm-quantity-and-currency",
+          "category": "llm",
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "status": "failed",
+          "failed_graders": [
+            "outcome-and-trajectory",
+            "structured-json"
+          ]
+        },
+        {
+          "id": "rag-current-policy",
+          "category": "rag",
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "status": "failed",
+          "failed_graders": [
+            "outcome-and-trajectory"
+          ]
+        },
+        {
+          "id": "chatbot-retains-preference",
+          "category": "chatbot",
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "status": "failed",
+          "failed_graders": [
+            "outcome-and-trajectory"
+          ]
+        },
+        {
+          "id": "chatbot-session-isolation",
+          "category": "chatbot",
+          "trials": 1,
+          "passed": 1,
+          "failed": 0,
+          "error": 0,
+          "success_rate": 1.0,
+          "status": "passed",
+          "failed_graders": []
+        },
+        {
+          "id": "multi-agent-reviewed-handoff",
+          "category": "multi_agent",
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "status": "failed",
+          "failed_graders": [
+            "outcome-and-trajectory"
+          ]
+        },
+        {
+          "id": "tools-response-lost-after-commit",
+          "category": "tools",
+          "trials": 1,
+          "passed": 0,
+          "failed": 1,
+          "error": 0,
+          "success_rate": 0.0,
+          "status": "failed",
+          "failed_graders": [
+            "outcome-and-trajectory"
+          ]
+        }
+      ],
+      "scope": "Observed cases and trials only; adapter execution does not establish live model inference."
+    }
+  },
+  "comparison": {
+    "regressions": [],
+    "improvements": [
+      {
+        "id": "llm-quantity-and-currency",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "rag-current-policy",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "chatbot-retains-preference",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "multi-agent-reviewed-handoff",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "tools-response-lost-after-commit",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      }
+    ],
+    "candidate_errors": 0,
+    "changes": [
+      {
+        "id": "llm-quantity-and-currency",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "rag-current-policy",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "chatbot-retains-preference",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "chatbot-session-isolation",
+        "baseline": 1.0,
+        "candidate": 1.0,
+        "delta": 0.0
+      },
+      {
+        "id": "multi-agent-reviewed-handoff",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      },
+      {
+        "id": "tools-response-lost-after-commit",
+        "baseline": 0.0,
+        "candidate": 1.0,
+        "delta": 1.0
+      }
+    ],
+    "metric_changes": [
+      {
+        "case_id": "chatbot-retains-preference",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "chatbot-session-isolation",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 1.0,
+        "candidate_score": 1.0,
+        "score_delta": 0.0,
+        "pass_rate_delta": 0.0,
+        "regressed": false,
+        "improved": false
+      },
+      {
+        "case_id": "llm-quantity-and-currency",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "llm-quantity-and-currency",
+        "grader_id": "structured-json",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "multi-agent-reviewed-handoff",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "rag-current-policy",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "tools-response-lost-after-commit",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      }
+    ],
+    "metric_regressions": [],
+    "metric_improvements": [
+      {
+        "case_id": "chatbot-retains-preference",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "llm-quantity-and-currency",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "llm-quantity-and-currency",
+        "grader_id": "structured-json",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "multi-agent-reviewed-handoff",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "rag-current-policy",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      },
+      {
+        "case_id": "tools-response-lost-after-commit",
+        "grader_id": "outcome-and-trajectory",
+        "baseline_score": 0.0,
+        "candidate_score": 1.0,
+        "score_delta": 1.0,
+        "pass_rate_delta": 1.0,
+        "regressed": false,
+        "improved": true
+      }
+    ],
+    "scope": "full_dataset",
+    "verification_eligible": true,
+    "shared_cases": [
+      "llm-quantity-and-currency",
+      "rag-current-policy",
+      "chatbot-retains-preference",
+      "chatbot-session-isolation",
+      "multi-agent-reviewed-handoff",
+      "tools-response-lost-after-commit"
+    ],
+    "baseline_only": [],
+    "candidate_only": [],
+    "incompatible_cases": []
+  },
+  "privacy": "Summary metadata only. Raw inputs, outputs, traces and configuration values remain in the source reports.",
+  "version": "602d48f1e8c99b1b6826ed1db6b01e46b4d314bd4217bcdb247b3e31412438bf"
+}

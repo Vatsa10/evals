@@ -7,7 +7,7 @@
       "name": "evals",
       "source": "./",
       "description": "Independent LLM and agent evaluation workflows",
-      "version": "0.2.1"
+      "version": "0.3.0"
     }
   ]
 }

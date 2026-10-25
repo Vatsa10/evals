@@ -11,6 +11,7 @@ import time
 from evals import __version__
 from evals.adapters import invoke, reject_constant, validate_adapter
 from evals.graders import MissingEvidence, grade, validate_grader
+from evals.reporting import run_provenance, summarize_report, validate_metadata
 
 
 def digest(value):
@@ -66,6 +67,7 @@ def validate_suite(suite, root):
             if not isinstance(grader_id, str) or not grader_id or grader_id in grader_ids:
                 raise ValueError(f"Invalid or duplicate grader id in {case['id']}")
             grader_ids.add(grader_id)
+    validate_metadata(suite)
 
 
 def validate_observation(observation):
@@ -86,6 +88,18 @@ def validate_observation(observation):
 def source_digest(adapter, root):
     if adapter and adapter.get("type") == "python":
         return hashlib.sha256((root / adapter["path"]).read_bytes()).hexdigest()
+    if adapter and adapter.get("type") == "command":
+        files = {}
+        for arg in adapter["argv"]:
+            path = root / arg
+            try:
+                exists = path.is_file()
+            except OSError:
+                # Long inline code/JSON arguments are not filesystem paths.
+                exists = False
+            if exists:
+                files[arg] = hashlib.sha256(path.read_bytes()).hexdigest()
+        return digest(files) if files else None
     return None
 
 
@@ -140,19 +154,25 @@ def run_suite(suite, root, trials=None):
         attempts = [r for r in results if r["case_id"] == case["id"]]
         passed = sum(r["status"] == "passed" for r in attempts)
         per_case.append({"id": case["id"], "trials": len(attempts), "passed": passed,
+                         "category": case.get("category", "uncategorized"),
                          "errors": sum(r["status"] == "error" for r in attempts),
                          "success_rate": passed / len(attempts),
                          "any_trial_passed": passed > 0, "all_trials_passed": passed == len(attempts)})
     # Compare the same inputs and grading contract; execution settings may vary.
     dataset = [{k: v for k, v in case.items() if k != "observation"} for case in suite["cases"]]
-    return {"schema_version": 1, "engine_version": __version__, "suite": suite["name"],
+    report = {"schema_version": 1, "engine_version": __version__, "suite": suite["name"],
             "mode": suite.get("mode", "live"), "started_at": started,
             "suite_sha256": digest(suite), "dataset_sha256": digest(dataset),
             "target": suite.get("target"), "target_source_sha256": target_source,
             "custom_grader_sources": custom_sources,
             "summary": {"total": len(results), **{s: counts[s] for s in ("passed", "failed", "error")},
                         "success_rate": counts["passed"] / len(results)},
-            "cases": per_case, "trials": results}
+            "cases": per_case, "trials": results,
+            "case_contracts": {case["id"]: digest({k: v for k, v in case.items() if k != "observation"}) for case in suite["cases"]},
+            "coverage_categories": suite.get("coverage_categories", []),
+            "provenance": run_provenance(suite, results, started)}
+    report["coverage"] = summarize_report(report)["coverage"]
+    return report
 
 
 def compare_reports(baseline, candidate):

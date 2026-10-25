@@ -1,5 +1,30 @@
 # Live verification
 
+## Version 0.3.0: provenance, coverage and portable reporting
+
+Verified on 2026-10-25 using the existing configured `claude-opus-5-5` model.
+The reporting integration executed six application cases spanning LLM extraction,
+RAG, multi-turn chat, multi-agent review, and ambiguous tool commits. A separate
+session-isolation regression was protected. There were 23 model calls and 14
+persisted request traces across baseline/candidate execution.
+
+The primary suite improved from **1/6 to 6/6** with zero evaluation errors and
+no observed regressions. The new report records measured adapter execution,
+separate declared/adapter-reported model metadata, five tested categories and
+an explicitly untested vision category. Full and exploratory pages were generated
+from the saved reports. The exploratory comparison correctly retained one shared
+case and exposed five candidate-only cases, with verification ineligible.
+
+Offline Chromium checks passed at 1360, 768 and 390px for both views, including
+URL state restoration, browser back, keyboard operation, empty states and no
+external requests. The new reporting tests cover malformed evidence, changed
+contracts/judges, legacy reports, snapshot changes/tampering and summary privacy.
+All 73 automated tests pass. The clean plugin and installed wheel both generated
+the same versioned report from the saved live evidence.
+
+See the [reporting guide](reporting.md) and
+[captured portable report](../website/reports/production).
+
 ## Version 0.2.1: five system categories
 
 The production-style lab was run end to end on 2026-10-25 with actual configured

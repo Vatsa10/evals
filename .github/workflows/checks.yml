@@ -18,3 +18,5 @@ jobs:
       - run: python scripts/build_plugin.py dist/evals-marketplace
       - run: python -m evals init .evals/smoke
       - run: python -m evals run .evals/smoke/suite.json --output .evals/smoke-report.json
+      - run: python -m evals summarize .evals/smoke-report.json --output .evals/smoke-summary.json
+      - run: python dist/evals-marketplace/plugins/evals/scripts/evals.py report-site .evals/smoke-report.json --output .evals/smoke-site
