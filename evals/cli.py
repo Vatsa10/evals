@@ -19,6 +19,25 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init", help="Create a runnable demo suite without overwriting files")
     init.add_argument("directory", nargs="?", default="evaluations")
+    brief = commands.add_parser("brief", help="Save project targets, answers and execution constraints")
+    brief_commands = brief.add_subparsers(dest="brief_command", required=True)
+    begin_brief = brief_commands.add_parser("init", help="Create a draft brief without replacing existing answers")
+    begin_brief.add_argument("path", nargs="?", type=Path, default=Path("evaluations/brief.json"))
+    begin_brief.add_argument("--from", dest="answers", type=Path)
+    begin_brief.add_argument("--project-root", type=Path)
+    edit_brief = brief_commands.add_parser("update", help="Merge explicit answers into an existing brief")
+    edit_brief.add_argument("path", type=Path)
+    edit_brief.add_argument("--from", dest="answers", type=Path, required=True)
+    for name in ("show", "check"):
+        item = brief_commands.add_parser(name)
+        item.add_argument("path", type=Path)
+    workflow = commands.add_parser("workflow", help="Execute a ready project brief through the evaluation engine")
+    workflow_commands = workflow.add_subparsers(dest="workflow_command", required=True)
+    start_workflow = workflow_commands.add_parser("start")
+    start_workflow.add_argument("brief", type=Path)
+    start_workflow.add_argument("--output", type=Path)
+    workflow_status = workflow_commands.add_parser("status")
+    workflow_status.add_argument("directory", type=Path)
     validate = commands.add_parser("validate", help="Validate a suite without executing adapters")
     validate.add_argument("suite")
     run = commands.add_parser("run", help="Execute a suite and save an evidence-backed JSON report")
@@ -91,7 +110,30 @@ def main(argv=None):
     commands.add_parser("doctor", help="Show engine and Python versions")
     args = parser.parse_args(argv)
     try:
-        if args.command == "init":
+        if args.command == "brief":
+            from evals import briefs
+            from evals.artifacts import read_json
+            if args.brief_command == "init":
+                result = briefs.create(args.path, answers=read_json(args.answers) if args.answers else None,
+                                       project_root=args.project_root)
+            elif args.brief_command == "update":
+                result = briefs.update(args.path, read_json(args.answers))
+            else:
+                result = briefs.load(args.path)[0]
+            if args.brief_command != "show":
+                result = dict(briefs.readiness(result), brief=str(args.path.resolve()))
+            print(json.dumps(result, indent=2))
+            return int(args.brief_command == "check" and not result["ready"])
+        elif args.command == "workflow":
+            from evals import workflows
+            if args.workflow_command == "status":
+                result = workflows.status(args.directory)
+            else:
+                directory, result = workflows.start(args.brief, output=args.output)
+                result = dict(result, directory=str(directory))
+            print(json.dumps(result, indent=2))
+            return int(bool(result.get("summary", {}).get("failed") or result.get("summary", {}).get("error")))
+        elif args.command == "init":
             print(f"Created demo fixture suite: {initialize(args.directory)}")
             print("Replace the demo adapter and cases with your real application before assessing its quality.")
         elif args.command == "doctor":

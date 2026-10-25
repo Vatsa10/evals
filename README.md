@@ -54,6 +54,23 @@ checks are explicitly separated.
 
 ## 1. Use with Claude Code or Codex
 
+Start with `/evals:start` in Claude Code or `$evals-start` in Codex. The agent
+inspects your project, asks what you want to target and what success means,
+saves the answers, then executes the mode you choose. It reuses known facts
+instead of repeating a questionnaire. Complete requests can proceed directly.
+
+| Workflow | Claude Code | Codex |
+| --- | --- | --- |
+| Guided start | `/evals:start` | `$evals-start` |
+| Evaluate only | `/evals:run` | `$evals-run` |
+| Fix and verify | `/evals:improve` | `$evals-improve` |
+| Trace | `/evals:trace` | `$evals-trace` |
+| Review results | `/evals:report` | `$evals-report` |
+
+See the [command and saved-brief guide](docs/commands.md). Existing
+`/evals:evals` and `$evals` invocations remain supported. Codex also offers
+`/skills` to select a skill; custom Claude slash commands use the plugin namespace.
+
 Codex CLI:
 
 ```console

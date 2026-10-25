@@ -1,5 +1,41 @@
 # Live verification
 
+## Version 0.4.0: guided command intake
+
+Verified on 2026-10-25 in real Codex CLI 0.164.0 and Claude Code 2.1.310 sessions.
+Claude used native `/evals:start` and `/evals:improve` plugin commands; Codex used
+`$evals-start` and `$evals-improve` from the installed plugin.
+
+Both hosts inspected a sandbox project, saved a draft with pending target/goal/
+criteria, and made zero target calls or application changes before the answers
+arrived. A separate invocation resumed the saved brief and received the target,
+acceptance rules, allowed file, local sandbox scope and explicit budgets.
+
+| Host | Valid behavioral baseline | Candidate | Total framework target calls | Result |
+| --- | --- | --- | --- | --- |
+| Claude Code | 2/3 | 3/3 | 6/9 | verified improvement, one candidate attempt |
+| Codex | 2/3 | 3/3 | 9/9 | verified improvement, one candidate attempt, integration recovery |
+
+Codex's first adapter returned an object in `output`, which the engine correctly
+rejected before grading. It preserved those three integration errors and the
+original frozen brief/suite, repaired the adapter/grader evidence pointer, and
+allocated only the remaining six calls to a fresh continuation baseline/candidate.
+The selected valid baseline and candidate used identical grading contracts; the
+application changed only after that valid baseline. The continuation and aggregate
+call accounting were identified in the final review. Errors were not presented as
+behavioral failures, and neither call nor candidate budgets were reset.
+
+Both final sessions retained frozen brief/source evidence and current source
+hashes matching the tested candidate. A target-side call counter independently
+matched the reported calls. The harness checker follows the actual verified
+continuation rather than assuming the original, errored session path. The target
+was a deterministic local function; these runs test live coding-harness behavior,
+not target model quality. Raw sessions remain in ignored `.evals` workspaces.
+
+See the [command guide](commands.md) and `scripts/live_guided_test.py`.
+All 87 automated tests pass, including incomplete-intake, evaluate-only,
+budget/locked-brief, live-trace evidence and report-only execution checks.
+
 ## Version 0.3.0: provenance, coverage and portable reporting
 
 Verified on 2026-10-25 using the existing configured `claude-opus-5-5` model.

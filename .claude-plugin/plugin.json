@@ -1,6 +1,6 @@
 {
   "name": "evals",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Evaluate and improve real AI applications with frozen baselines, failure briefs, and verified changes inside your coding agent.",
   "author": {"name": "Evals contributors"},
   "repository": "https://github.com/Vatsa10/evals",

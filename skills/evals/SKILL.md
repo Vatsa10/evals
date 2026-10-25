@@ -16,6 +16,23 @@ root is two parents above it. Run commands from the user's project with
 `python "<plugin-root>/scripts/evals.py" <command>`, or use an installed `evals`.
 Python 3.11+ is required.
 
+## Start from the person's target
+
+Read [guided intake](references/intake.md) for a new request or a bare invocation.
+Inspect the project and reuse prior answers before asking questions. Establish
+the target, exact goal, acceptance criteria, existing assets, desired mode and
+execution scope. Save a durable project brief and check its missing fields.
+Ask only what matters and is not already known, in small conversational rounds.
+Never invent acceptance criteria, provider configuration or authorization.
+When the request is complete, execute the selected workflow without another
+generic confirmation. If essential answers are missing, keep the draft and wait;
+do not run model calls or change application behavior yet.
+
+Use the mode selected by the person or the invoked command. Evaluate-only means
+no application fixes. An improvement request authorizes bounded changes in the
+agreed files. A report request uses existing evidence and makes no target calls.
+Preserve explicitly requested output paths and existing valid suites/sessions.
+
 ## Choose the requested workflow
 
 - **Evaluate only:** inspect the app, create/reuse a live suite and adapter,

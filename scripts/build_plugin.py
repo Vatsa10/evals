@@ -13,7 +13,7 @@ def build(destination):
         raise ValueError(f"Build destination already exists: {destination}")
     plugin = destination / "plugins" / "evals"
     plugin.mkdir(parents=True)
-    for name in ("evals", "skills", ".claude-plugin", ".codex-plugin"):
+    for name in ("evals", "skills", "commands", ".claude-plugin", ".codex-plugin"):
         shutil.copytree(source / name, plugin / name,
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "marketplace.json"))
     for name in ("plugin.json", "pyproject.toml", "README.md", "LICENSE"):
