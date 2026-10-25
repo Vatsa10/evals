@@ -20,7 +20,9 @@ class GuidedWorkflowTests(unittest.TestCase):
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
-        self.root = Path(self.folder.name)
+        # Windows runners may provide an 8.3 TEMP alias; the brief loader returns
+        # the canonical project root, so compare canonical paths in these checks.
+        self.root = Path(self.folder.name).resolve()
         self.app = self.root / "app.py"
         self.app.write_text('def evaluate(request):\n return {"output":"wrong"}\n')
         self.suite = {"schema_version": 1, "name": "actual-app", "mode": "live",
