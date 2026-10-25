@@ -1,10 +1,8 @@
 import argparse
 from datetime import datetime, timezone
 import json
-import os
 from pathlib import Path
 import sys
-import tempfile
 import uuid
 
 from evals import __version__
@@ -12,20 +10,7 @@ from evals.engine import compare_reports, load_suite, run_suite
 from evals.starter import initialize
 from evals.monitoring import alert_for_run, load_policy, monitor, record_trace, save_run
 from evals.storage import Store
-
-
-def write_report(path, report):
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=2, allow_nan=False)
-            handle.write("\n")
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+from evals.artifacts import write_json as write_report
 
 
 def main(argv=None):
@@ -70,6 +55,25 @@ def main(argv=None):
     export.add_argument("--policy", type=Path, required=True)
     export.add_argument("--output", type=Path, required=True)
     export.add_argument("--store", type=Path)
+    improve = commands.add_parser("improve", help="Run a guarded evaluation and application-improvement session")
+    improvement_commands = improve.add_subparsers(dest="improve_command", required=True)
+    begin = improvement_commands.add_parser("start", help="Freeze criteria, evaluate a baseline, and prepare a failure brief")
+    begin.add_argument("suite", type=Path)
+    begin.add_argument("--goal", required=True)
+    begin.add_argument("--track", type=Path, action="append", required=True, help="Application/prompt file to track (repeatable)")
+    begin.add_argument("--lock", type=Path, action="append", default=[], help="Additional rubric/reference file to freeze")
+    begin.add_argument("--regression-suite", type=Path, action="append", default=[])
+    begin.add_argument("--max-attempts", type=int, default=3)
+    begin.add_argument("--trials", type=int)
+    begin.add_argument("--output", type=Path)
+    begin.add_argument("--store", type=Path)
+    begin.add_argument("--allow-partial", action="store_true", help="Permit measured partial improvement; default requires the primary suite to pass")
+    candidate = improvement_commands.add_parser("check", help="Evaluate an application change against frozen baselines")
+    candidate.add_argument("session", type=Path)
+    candidate.add_argument("--hypothesis", required=True)
+    for name in ("status", "brief", "finish"):
+        command = improvement_commands.add_parser(name)
+        command.add_argument("session", type=Path)
     commands.add_parser("doctor", help="Show engine and Python versions")
     args = parser.parse_args(argv)
     try:
@@ -101,7 +105,7 @@ def main(argv=None):
             candidate = json.loads(args.candidate.read_text(encoding="utf-8-sig"))
             difference = compare_reports(baseline, candidate)
             print(json.dumps(difference, indent=2))
-            return int(bool(difference["regressions"]) or difference["candidate_errors"] > 0)
+            return int(bool(difference["regressions"] or difference["metric_regressions"]) or difference["candidate_errors"] > 0)
         elif args.command == "monitor":
             baseline = json.loads(args.baseline.read_text(encoding="utf-8-sig")) if args.baseline else None
             return monitor(args.suite, Store(args.store), args.interval, args.iterations, baseline)
@@ -140,6 +144,28 @@ def main(argv=None):
                                 "observation": record["observation"], "graders": policy["graders"]}]}
             write_report(args.output, suite)
             print(f"Exported recorded suite: {args.output}")
+        elif args.command == "improve":
+            from evals import improvement
+            if args.improve_command == "start":
+                directory, state = improvement.start(args.suite, goal=args.goal, track=args.track,
+                    lock=args.lock, regression_suites=args.regression_suite, max_attempts=args.max_attempts,
+                    trials=args.trials, output=args.output, store=args.store, allow_partial=args.allow_partial)
+                print(json.dumps({"session": str(directory), "goal": state["goal"],
+                                  "brief": str(directory / "brief.md"), "max_attempts": state["max_attempts"]}, indent=2))
+            elif args.improve_command == "check":
+                attempt = improvement.check(args.session, hypothesis=args.hypothesis)
+                print(json.dumps(attempt, indent=2))
+                return int(not attempt["ready"])
+            elif args.improve_command == "finish":
+                decision = improvement.finish(args.session)
+                print(json.dumps(decision, indent=2))
+                return int(decision["status"] == "not_verified")
+            elif args.improve_command == "brief":
+                directory, _ = improvement.load_session(args.session)
+                print((directory / "brief.md").read_text(encoding="utf-8"))
+            else:
+                _, state = improvement.load_session(args.session)
+                print(json.dumps(state, indent=2))
     except (ValueError, OSError, KeyError, TypeError) as exc:
         print(f"evals: {exc}", file=sys.stderr)
         return 2

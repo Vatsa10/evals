@@ -4,6 +4,7 @@ from collections import Counter
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 from pathlib import Path
 import time
 
@@ -171,6 +172,39 @@ def compare_reports(baseline, candidate):
                 "candidate": after[key]["success_rate"],
                 "delta": after[key]["success_rate"] - before[key]["success_rate"]}
                for key in before]
+    def metrics(report):
+        found = {}
+        for trial in report["trials"]:
+            for verdict in trial["graders"]:
+                key = (trial["case_id"], verdict["id"])
+                item = found.setdefault(key, {"scores": [], "passed": 0, "count": 0})
+                item["count"] += 1
+                item["passed"] += verdict["status"] == "passed"
+                score = verdict.get("score")
+                if isinstance(score, (int, float)) and not isinstance(score, bool) and math.isfinite(score):
+                    item["scores"].append(score)
+        return found
+
+    old_metrics, new_metrics = metrics(baseline), metrics(candidate)
+    metric_changes = []
+    for case_id, grader_id in sorted(old_metrics.keys() | new_metrics.keys()):
+        old = old_metrics.get((case_id, grader_id))
+        new = new_metrics.get((case_id, grader_id))
+        old_mean = sum(old["scores"]) / len(old["scores"]) if old and old["scores"] else None
+        new_mean = sum(new["scores"]) / len(new["scores"]) if new and new["scores"] else None
+        old_rate = old["passed"] / old["count"] if old else 0
+        new_rate = new["passed"] / new["count"] if new else 0
+        delta = new_mean - old_mean if old_mean is not None and new_mean is not None else None
+        metric_changes.append({"case_id": case_id, "grader_id": grader_id,
+                               "baseline_score": old_mean, "candidate_score": new_mean,
+                               "score_delta": delta, "pass_rate_delta": new_rate - old_rate,
+                               "regressed": (old is not None and new is None) or new_rate < old_rate or
+                                            (delta is not None and delta < -1e-12) or
+                                            (old_mean is not None and new_mean is None),
+                               "improved": new_rate > old_rate or (delta is not None and delta > 1e-12)})
     return {"regressions": [c for c in changes if c["delta"] < 0],
             "improvements": [c for c in changes if c["delta"] > 0],
-            "candidate_errors": candidate["summary"]["error"], "changes": changes}
+            "candidate_errors": candidate["summary"]["error"], "changes": changes,
+            "metric_changes": metric_changes,
+            "metric_regressions": [m for m in metric_changes if m["regressed"]],
+            "metric_improvements": [m for m in metric_changes if m["improved"]]}

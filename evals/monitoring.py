@@ -18,7 +18,7 @@ def save_run(store, report):
 
 def alert_for_run(store, report, comparison=None):
     counts = report["summary"]
-    if counts["failed"] or counts["error"] or (comparison and comparison["regressions"]):
+    if counts["failed"] or counts["error"] or (comparison and (comparison["regressions"] or comparison["metric_regressions"])):
         return store.add("alerts", {"run_id": report["id"], "name": report["suite"],
                                    "status": "open", "summary": counts, "comparison": comparison})
     return None
@@ -44,7 +44,8 @@ def monitor(suite_path, store=None, interval=60, iterations=None, baseline=None,
         failed = failed or alert is not None
         emit(json.dumps({"run_id": report["id"], "iteration": index + 1,
                          "summary": report["summary"], "alert_id": alert["id"] if alert else None,
-                         "regressions": comparison["regressions"] if comparison else []}))
+                         "regressions": comparison["regressions"] if comparison else [],
+                         "metric_regressions": comparison["metric_regressions"] if comparison else []}))
         index += 1
         if iterations is None or index < iterations:
             time.sleep(interval)

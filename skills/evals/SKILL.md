@@ -1,63 +1,73 @@
 ---
 name: evals
-description: Set up, run, compare, and monitor evaluations for LLM applications, RAG pipelines, tool-using agents, and conversations using Evals. Use for AI quality tests, plug-and-play evaluation setup, production tracing, and investigating evaluation failures.
+description: Evaluate and improve real LLM applications and AI agents inside Claude Code or Codex. Define success with the user, run evaluations, diagnose failures, change prompts/tools/code, and verify improvements against frozen criteria. Also supports AI tracing and monitoring.
 ---
 
 # Evals
 
-Use the bundled independent engine. DeepEval is design reference material, not a
-dependency; do not install it or substitute its CLI for this framework.
+Evals is a person-and-coding-agent improvement loop. The person supplies the goal
+and acceptance criteria. You connect the real application, run evaluations,
+investigate failures, improve the system, and verify the result in this same
+coding-agent session. The engine measures evidence and preserves the baseline.
 
-Resolve symlinks on this skill directory, then resolve the plugin root as two
-parents above it. Run the engine
-from the user's project with `python "<plugin-root>/scripts/evals.py" <command>`.
-An installed `evals` CLI is also usable. Python 3.11+ is the only runtime requirement.
-Keep the working directory in the user's project so reports land there.
+Use the bundled independent engine. DeepEval is reference material, not a runtime
+dependency. Resolve this skill's real directory (including symlinks); the plugin
+root is two parents above it. Run commands from the user's project with
+`python "<plugin-root>/scripts/evals.py" <command>`, or use an installed `evals`.
+Python 3.11+ is required.
 
-Inspect the application's actual entrypoint, tools, retrieval, conversation state,
-and existing tests. Reuse existing datasets and success criteria. If an essential
-criterion is unavailable, ask for it while continuing unrelated setup.
+## Choose the requested workflow
 
-For the suite and adapter contracts, read [the framework reference](references/framework.md).
-For production tracing or continuous monitoring, read [monitoring](references/monitoring.md).
+- **Evaluate only:** inspect the app, create/reuse a live suite and adapter,
+  validate, run, and explain evidence. Do not change application behavior unless
+  the user asked for improvement.
+- **Evaluate and improve:** complete the loop below. Do not stop at a score or
+  suggestions when the user authorized implementing improvements.
+- **Tracing/monitoring:** read [monitoring](references/monitoring.md) and connect
+  the actual app. Start persistent services only when requested.
 
-- Create or adapt a committed suite and an adapter calling the real application.
-  `init evaluations` generates runnable demo fixtures; those fixtures only verify
-  the framework and must not be presented as evidence of application quality.
-- Specify outcomes first. For tool-using agents, check observable environment
-  state when available and check tool arguments or dependencies where required.
-  Do not require an exact trajectory when several valid approaches exist.
-- For RAG, separate retrieval coverage from answer quality. The built-in document
-  ID metrics measure retrieval, and substring checks do not establish faithfulness.
-- For conversations, collect the actual messages across turns. A recorded history
-  evaluates those observations; a live adapter must execute the interaction to
-  measure current behavior. Do not invent hidden reasoning or unavailable traces.
-- Use deterministic checks for verifiable facts. For subjective quality, use a
-  custom judge adapter with a rubric and representative human-scored examples.
-  Reuse the project's configured provider; the engine has no default judge model.
+Read [the engine contract](references/framework.md) when authoring cases/adapters.
+Read [the improvement workflow](references/improvement.md) before starting a loop.
 
-Run `validate <suite>` before `run <suite>`. Use `--trials N` when the user wants
-reliability measurements; each live attempt gets a fresh process. External files,
-databases, and services still need fixtures or reset logic in the target adapter.
-Keep case references out of target inputs; the engine already excludes graders.
+## Evaluate and improve
 
-Read the saved JSON report, including failing grader evidence and target errors.
-Treat `missing_evidence` and judge/adapter errors as evaluation errors. Report the
-gap or improve instrumentation rather than silently awarding a score.
+1. Inspect the real model/agent entrypoint, prompts, retrieval, tools, tests, and
+   existing datasets. Reuse the user's model/provider and environment. Do not
+   switch models silently. Use the person's stated goal and acceptance criteria;
+   ask only if a missing criterion materially prevents valid grading.
+2. Build or reuse meaningful cases and a thin adapter calling the actual app.
+   Include existing working behavior as regression cases or a separate regression
+   suite. Keep labels out of the target request. Demo fixtures from `init` only
+   test the framework and cannot establish application quality.
+3. Select graders that measure the goal. Use deterministic checks for verifiable
+   facts and a custom calibrated LLM judge for subjective quality. Substring checks
+   do not prove faithfulness. Recorded captures can inform cases, but verifying a
+   fix requires live execution. Do not invent traces or hidden reasoning.
+4. Validate the suite. Start an improvement session with the user's goal, the app
+   and prompt files you will change, and any regression suites. Freeze external
+   rubric/reference files with `--lock`. Use the user's attempt budget, or the
+   default maximum of three candidate evaluations.
+5. Read `brief.md` and the relevant full reports. Identify the earliest failed
+   component from evidence. Form a specific hypothesis, then edit the real prompt,
+   retrieval, tool behavior, or application code. Treat missing evidence and
+   infrastructure errors explicitly rather than grading them as successes.
+6. Run `improve check SESSION --hypothesis "..."`. Inspect case and grader
+   regressions, error counts, and remaining failures. Preserve the frozen cases,
+   graders, references, and trial budgets; improving the app is the work. Never
+   weaken a check, hardcode expected answers, or substitute a fake app to pass.
+7. Continue only while the session budget and user scope permit. Restore only
+   your own changes when abandoning an unsuccessful approach. A previously tested
+   candidate can be selected after its exact tracked source is restored.
+8. Run `improve finish SESSION`. A verified decision requires a measured
+   improvement, no detected case/grader regressions, no candidate errors, and the
+   currently tracked source to match the tested candidate. By default, the primary
+   acceptance suite must pass. Human review decides whether to adopt or deploy.
+9. Report the goal, root cause, actual changes, baseline/candidate evidence,
+   regression results, remaining gaps, session directory, and decision status.
+   Distinguish `baseline_satisfied` from an improvement and `not_verified` from
+   success. A stochastic run is observed evidence, not universal proof.
 
-When asked to improve the app, save a baseline, make a targeted change, rerun the
-same cases, and use `compare <baseline> <candidate>`. Preserve grading criteria;
-changing them requires a new baseline. Comparisons describe observed success-rate
-changes, not statistical significance. Honor the requested iteration budget and
-stop when it is reached or remaining work needs information or authorization.
-
-For plug-and-play setup, do the integration work in the user's project: create a
-real adapter and suite, add tracing around relevant application components, and
-verify one complete run. Offer the commands for continuous monitoring once the
-first run works. Launch a persistent monitor only when the user requests it.
-Keep expected answers and criteria stable when repairing application failures.
-
-Report what was evaluated, passed/failed/error counts, representative failures,
-the saved report path, and remaining evidence gaps. State when only demo fixtures
-or recorded observations were evaluated. Do not claim host integration was tested
-unless the plugin was actually loaded in that host.
+Keep scope clear. The framework does not automatically edit arbitrary systems or
+change business goals. You perform the application work through the host's normal
+tools and permissions. The person can inspect the source diff and evidence in
+the improvement session without leaving their coding workflow.

@@ -1,8 +1,8 @@
 # Evals
 
-An independent evaluation framework for LLM applications and AI agents.
-Use it through Claude Code or Codex, let a coding agent set up evaluations and
-monitoring in your project, or write the integrations yourself.
+Evaluate and improve real AI applications from the coding workflow you already use.
+You define success; Claude Code or Codex runs evaluations, diagnoses failures,
+changes your prompts/tools/code, and verifies the result against a frozen baseline.
 
 Our engine, graders, tracing, and storage are implemented here. DeepEval,
 Langfuse, LangSmith, and Anthropic's evaluation guidance inform the design.
@@ -23,6 +23,26 @@ The plugin guides the coding agent. The Python engine executes evaluations and
 records evidence. Your application can use any model provider or agent stack.
 DeepEval is design reference material, not a runtime dependency.
 
+## The core workflow: evaluate, improve, verify
+
+Ask your coding agent to improve a specific behavior, not just produce a score:
+
+```text
+Use $evals to evaluate and improve this AI application.
+Use its real model calls, preserve working behavior, and verify the fix
+against unchanged criteria. Use at most three candidate evaluations.
+```
+
+The agent uses `evals improve start/check/finish` to create a baseline, read an
+evidence-backed failure brief, edit the actual system, and check the candidate.
+Sessions retain the goal, attempt budget, source diffs, reports, and final decision.
+Changed criteria, grader regressions, evaluation errors, or untested source edits
+prevent a verified result. The primary acceptance suite must pass by default.
+
+Read the [end-to-end workflow](docs/improvement-workflow.md). An
+[actual LLM example](examples/llm_prompt) demonstrates improving a system prompt;
+the optional CLI-based example uses your configured model and account allowance.
+
 ## 1. Use with Claude Code or Codex
 
 Codex CLI:
@@ -35,8 +55,8 @@ codex plugin add evals@evals
 Start a new Codex session in your application, then ask:
 
 ```text
-Use $evals to inspect this application, add meaningful evaluations,
-run them, and show me the failures with supporting evidence.
+Use $evals to inspect and evaluate this application, improve its failures,
+and verify the changes against the same acceptance criteria.
 ```
 
 Claude Code:
@@ -169,7 +189,9 @@ regression suite. Create a live suite from its input to verify a fix.
 - Missing evidence and execution errors remain distinct from failed assertions.
 - Live trials start fresh processes. External systems need fixtures/reset logic.
 - Reports include evidence, timing, source fingerprints, and case success rates.
-  Comparisons require the same grading contract.
+  Comparisons require the same grading contract and track individual grader scores.
+- Improvement sessions freeze criteria, cap attempts, preserve source diffs,
+  and verify the current application against the evaluated candidate.
 - Recorded observations have one trial. Replaying captures does not estimate
   reliability. Confidence intervals and pass@k estimators are future work.
 

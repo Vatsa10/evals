@@ -13,7 +13,7 @@ evals history --kind alerts
 ```
 
 The first run becomes the baseline unless `--baseline <report.json>` is given.
-Every run is stored. Failed/error trials and observed regressions create local
+Every run is stored. Failed/error trials and observed case or grader regressions create local
 alert records. Omit `--iterations` to run in the foreground until interrupted.
 No scheduler or service is installed. A finite monitor returns 1 if any run
 triggered an alert. Changed grading criteria require a new baseline.

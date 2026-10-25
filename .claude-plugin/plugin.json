@@ -1,7 +1,7 @@
 {
   "name": "evals",
-  "version": "0.1.0",
-  "description": "Build and run evidence-backed LLM, RAG, agent, and conversation evaluations with the independent Evals engine.",
+  "version": "0.2.0",
+  "description": "Evaluate and improve real AI applications with frozen baselines, failure briefs, and verified changes inside your coding agent.",
   "author": {"name": "Evals contributors"},
   "repository": "https://github.com/Vatsa10/evals",
   "license": "Apache-2.0",

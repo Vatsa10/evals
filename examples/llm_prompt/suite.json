@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "llm-order-quantity",
+  "mode": "live",
+  "trials": 1,
+  "target": {"type": "python", "path": "app.py", "timeout_seconds": 180},
+  "cases": [
+    {"id": "single-item", "input": "Please order one notebook.", "expected_quantity": 1,
+      "graders": [{"id": "quantity-correct", "type": "custom", "adapter": {"type": "python", "path": "judge.py"}}]},
+    {"id": "combined-items", "input": "Order two notebooks for me and three more for my team. What is the total notebook quantity?", "expected_quantity": 5,
+      "graders": [{"id": "quantity-correct", "type": "custom", "adapter": {"type": "python", "path": "judge.py"}}]},
+    {"id": "cancelled-order", "input": "Cancel my notebook order. The quantity should be zero.", "expected_quantity": 0,
+      "graders": [{"id": "quantity-correct", "type": "custom", "adapter": {"type": "python", "path": "judge.py"}}]}
+  ]
+}

@@ -3,6 +3,8 @@
 `init [directory]`, `validate <suite.json>`, `run <suite.json> [--trials N]
 [--output report.json]`, `report <report.json>`, `compare <baseline> <candidate>`,
 and `doctor` are supported by the bundled `scripts/evals.py` entrypoint.
+For the complete person-and-coding-agent feedback loop, use
+`improve start/check/brief/status/finish`; see [the improvement workflow](improvement.md).
 
 Exit status: 0 for passing runs/comparisons, 1 for failed/error trials or observed
 regressions, 2 for invalid configuration, and 130 for an interrupted CLI run.
@@ -117,7 +119,8 @@ Rate denominators include errors; error counts are also reported separately.
 are not estimates of pass@k or pass^k. Confidence intervals are not implemented.
 
 Comparisons require the same cases, inputs, grading contract, mode, and direct
-Python custom-grader source. They report observed case success-rate changes and
-fail on regressions or candidate errors. Dependency trees, remote model versions,
+Python custom-grader source. They report observed case success-rate and mean
+grader-score changes, and fail on case/grader regressions or candidate errors.
+These are point comparisons, not significance estimates. Dependency trees, remote model versions,
 and command-adapter source are not automatically fingerprinted; pin these in the
 project when reproducibility requires it.
