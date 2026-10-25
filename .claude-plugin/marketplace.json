@@ -1,0 +1,13 @@
+{
+  "name": "evals",
+  "metadata": {"description": "Independent LLM and agent evaluation workflows for coding assistants"},
+  "owner": {"name": "Evals contributors"},
+  "plugins": [
+    {
+      "name": "evals",
+      "source": "./",
+      "description": "Independent LLM and agent evaluation workflows",
+      "version": "0.1.0"
+    }
+  ]
+}

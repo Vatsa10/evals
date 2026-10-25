@@ -1,0 +1,14 @@
+{
+  "name": "support-request",
+  "thread_id": "support-conversation-1",
+  "input": "Can I return this order?",
+  "observation": {
+    "output": "{\"decision\":\"approved\"}",
+    "usage": {"total_tokens": 120},
+    "tools": [{"name": "get_order", "arguments": {"order_id": "o1"}}],
+    "messages": [
+      {"role": "user", "content": "Can I return this order?"},
+      {"role": "assistant", "content": "Your return is approved."}
+    ]
+  }
+}

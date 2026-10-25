@@ -1,0 +1,7 @@
+{
+  "name": "structured-response-quality",
+  "graders": [
+    {"id": "valid-response-json", "type": "json_valid", "path": "/output"},
+    {"id": "token-budget", "type": "max_value", "path": "/usage/total_tokens", "expected": 1000}
+  ]
+}

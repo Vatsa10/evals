@@ -1,0 +1,11 @@
+{
+  "name": "evals",
+  "version": "0.1.0",
+  "description": "Independent evaluation engine for LLM applications and AI agents",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Evals",
+    "shortDescription": "Create, run, and inspect AI evaluations",
+    "defaultPrompt": ["Use Evals to add and run evaluations for this application."]
+  }
+}
