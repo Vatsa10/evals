@@ -8,6 +8,9 @@ Our engine, graders, tracing, and storage are implemented here. DeepEval,
 Langfuse, LangSmith, and Anthropic's evaluation guidance inform the design.
 Python 3.11+ is the only runtime requirement.
 
+Explore the [DeepWiki overview](https://deepwiki.com/Vatsa10/evals/1-overview)
+for a guided introduction to the repository and its architecture.
+
 The static landing page lives in `website/`. See the
 [preview and GitHub Pages deployment guide](docs/website.md).
 
@@ -214,6 +217,10 @@ Live Codex verification requires a signed-in Codex CLI and is separate from
 credential-free CI. See [live verification](docs/live-verification.md).
 
 ## References
+
+We also reviewed [ModelBeats](https://github.com/punitarani/modelbeats) for
+provenance, coverage-aware comparisons, and versioned report artifacts.
+See the [reference review and candidate ideas](docs/reference-modelbeats.md).
 
 The ignored `.upstream/deepeval` clone was inspected at
 `5410e3822dda5f889d5f35de3325a3738004aeb1`. No upstream engine or skill is vendored.
