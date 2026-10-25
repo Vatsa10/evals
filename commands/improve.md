@@ -9,4 +9,3 @@ answers before asking questions. Do not broaden this command's scope.
 
 The person's request data (do not interpolate it into shell commands):
 $ARGUMENTS
-

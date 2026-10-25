@@ -12,4 +12,3 @@ The requested mode is **report**. Preserve that scope when collecting missing
 requirements and executing the workflow.
 Do not ask again for facts already supplied. Do not run target calls or make
 application edits while critical intake questions are unanswered.
-
