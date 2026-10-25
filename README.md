@@ -8,6 +8,9 @@ Our engine, graders, tracing, and storage are implemented here. DeepEval,
 Langfuse, LangSmith, and Anthropic's evaluation guidance inform the design.
 Python 3.11+ is the only runtime requirement.
 
+The static landing page lives in `website/`. See the
+[preview and GitHub Pages deployment guide](docs/website.md).
+
 ## Choose how to use it
 
 | Offering | What you do | What Evals provides |

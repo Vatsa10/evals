@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09090b">
+  <title>Evals | Ship agents. With evidence.</title>
+  <meta name="description" content="An independent, open-source evaluation framework for LLMs and AI agents. Use Evals with Claude Code, Codex, or your own Python workflows.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Evals | Ship agents. With evidence.">
+  <meta property="og:description" content="From your first test to a continuous feedback loop. One evaluation engine for your LLMs, agents, and everything between them.">
+  <meta property="og:url" content="https://vatsa10.github.io/evals/">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://vatsa10.github.io/evals/">
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="./assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="ambient-light" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="nav-shell glass">
+      <a class="brand" href="#" aria-label="Evals home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>evals<span class="brand-period">.</span></a>
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#workflow">How it works</a><a href="#ways">Your workflow</a><a href="#setup">Setup guide</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="github-link" href="https://github.com/Vatsa10/evals" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#github-logo"></use></svg><span>GitHub</span><svg class="icon arrow-small" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a>
+        <a class="nav-cta" href="#setup">Get started<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></a>
+        <button class="menu-toggle icon-button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#list"></use></svg></button>
+      </div>
+    </div>
+    <nav class="mobile-nav glass" id="mobile-nav" aria-label="Mobile navigation" hidden><a href="#workflow">How it works</a><a href="#ways">Your workflow</a><a href="#setup">Setup guide</a><a href="https://github.com/Vatsa10/evals">View on GitHub</a></nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section-wrap" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <a class="release-tag enter" href="https://github.com/Vatsa10/evals"><span class="status-light"></span>Open source. Ready for your next agent.<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a>
+        <h1 id="hero-title" class="enter" style="--enter-delay: 90ms">Ship agents.<br><span>With evidence.</span></h1>
+        <p class="hero-description enter" style="--enter-delay: 160ms">Know what works. See what breaks.<br>One evaluation engine for LLMs, agents,<br class="desktop-break"> and everything between them.</p>
+        <div class="hero-actions enter" style="--enter-delay: 230ms">
+          <a class="button button-primary" href="#setup">Get started<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></a>
+          <a class="text-link" href="#workflow">See how it works<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-down"></use></svg></a>
+        </div>
+      </div>
+
+      <div class="hero-visual enter" style="--enter-delay: 240ms">
+        <div class="orbital-stage" aria-hidden="true"><div class="orbital-orbit orbit-one"></div><div class="orbital-orbit orbit-two"></div><img class="glass-sculpture" src="./assets/hero-glass.webp" width="768" height="768" alt="" decoding="async" fetchpriority="high"><span class="orbit-point point-one"></span><span class="orbit-point point-two"></span></div>
+        <div class="evaluation-window glass" id="evaluation-demo">
+          <div class="window-chrome"><span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#terminal-window"></use></svg>return-policy</span><span class="example-label">Interactive example</span></div>
+          <div class="demo-toolbar"><span class="mono">EVALUATION RUN</span><div class="demo-switch" role="group" aria-label="Choose example version"><button type="button" data-demo-version="before" aria-pressed="false">Before fix</button><button type="button" data-demo-version="after" aria-pressed="true">After fix</button></div></div>
+          <div class="demo-score"><div><span class="score-number" id="demo-score">3<span>/ 3</span></span><span class="score-caption" id="demo-caption">cases passed</span></div><span class="run-state" id="run-state"><span class="status-light"></span>Run complete</span></div>
+          <div class="case-list" aria-live="polite" aria-atomic="true">
+            <div class="case-row" data-case="0"><span class="case-icon"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg></span><span>Return on day 7</span><span class="case-status">Passed</span></div>
+            <div class="case-row" data-case="1"><span class="case-icon"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg></span><span>Return on day 30</span><span class="case-status">Passed</span></div>
+            <div class="case-row" data-case="2"><span class="case-icon"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg></span><span>Return on day 31</span><span class="case-status">Passed</span></div>
+          </div>
+          <div class="demo-footer"><span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#fingerprint"></use></svg>Same dataset. Clearer signal.</span><button class="replay-button" id="replay-demo" type="button"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-clockwise"></use></svg>Replay run</button></div>
+        </div>
+        <div class="visual-caption"><span class="caption-line"></span>Actual workflow. Illustrative replay.<a href="https://github.com/Vatsa10/evals/blob/main/docs/live-verification.md" aria-label="Read the live verification"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a></div>
+      </div>
+      <div class="hero-bottom"><span class="mono">EXPLORE WHAT YOU CAN EVALUATE</span><div><a href="https://github.com/Vatsa10/evals/blob/main/skills/evals/references/framework.md">LLM responses</a><i></i><a href="https://github.com/Vatsa10/evals/blob/main/skills/evals/references/framework.md#graders">RAG pipelines</a><i></i><a href="https://github.com/Vatsa10/evals/blob/main/skills/evals/references/framework.md#graders">Tool-using agents</a><i></i><a href="https://github.com/Vatsa10/evals/blob/main/skills/evals/references/monitoring.md">Conversations</a></div></div>
+    </section>
+
+    <section class="workflow-section section-wrap section-space" id="workflow" aria-labelledby="workflow-title">
+      <div class="section-heading reveal"><span class="eyebrow"><span></span>THE EVALUATION LOOP</span><div class="heading-split"><h2 id="workflow-title">A good answer is<br>only part of the story.</h2><p>Measure what your agent actually did.<br>From the first input to the final outcome,<br>Evals keeps the evidence in view.</p></div></div>
+      <div class="workflow-stage glass reveal">
+        <div class="flow-track" aria-hidden="true"><span></span><span></span><span></span></div>
+        <article class="flow-step"><div class="step-top"><span class="step-index mono">01 / DEFINE</span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#crosshair"></use></svg></div><h3>Make success explicit.</h3><p>Give your agent a task, a dataset,<br>and a clear definition of done.</p><div class="flow-code"><span class="code-muted">case:</span> refund-eligible-order<br><span class="code-muted">expected:</span> refund.processed</div></article>
+        <article class="flow-step"><div class="step-top"><span class="step-index mono">02 / OBSERVE</span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#path"></use></svg></div><h3>Keep the whole picture.</h3><p>Collect responses, tool calls, retrieval<br>context, conversations, and state.</p><div class="mini-trace"><span><i></i>agent</span><span><i></i>verify_identity</span><span><i></i>process_refund</span></div></article>
+        <article class="flow-step"><div class="step-top"><span class="step-index mono">03 / VERIFY</span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#seal-check"></use></svg></div><h3>Turn runs into evidence.</h3><p>Apply your graders, inspect failures,<br>and compare against a baseline.</p><div class="flow-verdict"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check-circle"></use></svg><span>Outcome verified</span><span class="mono">1.0</span></div></article>
+      </div>
+      <div class="evidence-note reveal"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#fingerprint"></use></svg><p>“Refund processed” is a response. <span>A refund in the database is evidence.</span></p></div>
+    </section>
+
+    <section class="ways-section section-wrap section-space" id="ways" aria-labelledby="ways-title">
+      <div class="ways-heading reveal"><h2 id="ways-title">Fits the way<br>you already build.</h2><p>Start with your coding agent. Let it handle the integration.<br>Or take the controls yourself.</p></div>
+      <div class="ways-layout reveal">
+        <div class="way-tabs" role="tablist" aria-label="Ways to use Evals" aria-orientation="vertical">
+          <button class="way-tab" id="way-agent" type="button" role="tab" aria-selected="true" aria-controls="way-panel" data-way="agent"><span class="way-number mono">01</span><span><strong>Inside your coding agent.</strong><small>Claude Code or Codex. One skill away.</small></span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></button>
+          <button class="way-tab" id="way-setup" type="button" role="tab" aria-selected="false" aria-controls="way-panel" data-way="setup" tabindex="-1"><span class="way-number mono">02</span><span><strong>Let your agent wire it up.</strong><small>Real app. Real tests. An ongoing feedback loop.</small></span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></button>
+          <button class="way-tab" id="way-sdk" type="button" role="tab" aria-selected="false" aria-controls="way-panel" data-way="sdk" tabindex="-1"><span class="way-number mono">03</span><span><strong>Make it your own.</strong><small>Your code and custom judges. Same engine.</small></span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></button>
+        </div>
+        <div class="way-preview glass" role="tabpanel" id="way-panel" aria-labelledby="way-agent" tabindex="0">
+          <div class="preview-chrome"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="mono" id="way-filename">your-terminal</span><svg class="icon" id="way-icon" aria-hidden="true"><use href="./assets/icons.svg#terminal-window"></use></svg></div>
+          <div id="way-content"><div class="agent-command"><span class="prompt-symbol">›</span><p>Use <span class="inline-skill">$evals</span> to add meaningful<br>evaluations to this application.</p></div><div class="agent-response"><span class="mini-brand" aria-hidden="true">e.</span><div><p>Let’s make the behavior measurable.</p><ul><li><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg>Inspect your application</li><li><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg>Create a suite and adapter</li><li><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg>Run, inspect, and verify</li></ul></div></div></div>
+          <a class="preview-bottom" id="way-link" href="#setup" data-select-guide="codex"><span>Get the plugin</span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="setup-section section-wrap section-space" id="setup" aria-labelledby="setup-title">
+      <div class="section-heading reveal"><div class="heading-split"><h2 id="setup-title">A few commands.<br>A lot less guesswork.</h2><a class="text-link documentation-link" href="https://github.com/Vatsa10/evals#readme" target="_blank" rel="noopener noreferrer">Read the documentation<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a></div></div>
+      <div class="setup-shell glass reveal">
+        <div class="setup-sidebar"><span class="mono sidebar-label">CHOOSE YOUR ENTRYPOINT</span><div class="guide-tabs" role="tablist" aria-label="Setup guides" aria-orientation="vertical">
+          <button class="guide-tab" id="tab-codex" type="button" role="tab" aria-selected="true" aria-controls="guide-panel" data-guide="codex"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#terminal-window"></use></svg>Codex<svg class="icon guide-arrow" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></button>
+          <button class="guide-tab" id="tab-claude" type="button" role="tab" aria-selected="false" aria-controls="guide-panel" data-guide="claude" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#asterisk"></use></svg>Claude Code<svg class="icon guide-arrow" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></button>
+          <button class="guide-tab" id="tab-python" type="button" role="tab" aria-selected="false" aria-controls="guide-panel" data-guide="python" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#code"></use></svg>Python SDK<svg class="icon guide-arrow" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></button>
+          <button class="guide-tab" id="tab-monitoring" type="button" role="tab" aria-selected="false" aria-controls="guide-panel" data-guide="monitoring" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#pulse"></use></svg>Monitoring<svg class="icon guide-arrow" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></button>
+        </div><div class="setup-requirements"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#info"></use></svg><p>Python 3.11+<br>No hosted account required.<br><span>Your model, your credentials.</span></p></div></div>
+        <div class="guide-content" role="tabpanel" id="guide-panel" aria-labelledby="tab-codex" tabindex="0">
+          <div class="guide-title-row"><div><span class="mono guide-kicker">THE CODING-AGENT ROUTE</span><h3>Meet your new evaluation skill.</h3></div><span class="guide-badge">CODEX</span></div>
+          <div id="guide-steps"><article class="guide-step"><div class="guide-step-heading"><span class="guide-step-number">1</span><h4>Install from the marketplace</h4></div><p>Run these in your terminal with Codex CLI installed.</p><div class="code-block"><pre><code>codex plugin marketplace add Vatsa10/evals
+codex plugin add evals@evals</code></pre><button class="copy-button icon-button" type="button" aria-label="Copy Codex installation commands"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#copy"></use></svg></button></div></article><article class="guide-step"><div class="guide-step-heading"><span class="guide-step-number">2</span><h4>Start a fresh session in your app</h4></div><p>Restart Codex so it can discover the installed Evals skill.</p><div class="code-block"><pre><code>codex</code></pre><button class="copy-button icon-button" type="button" aria-label="Copy Codex launch command"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#copy"></use></svg></button></div></article><article class="guide-step"><div class="guide-step-heading"><span class="guide-step-number">3</span><h4>Give it a real task</h4></div><p>Your agent writes the adapter, creates the suite, and runs it.</p><div class="code-block prompt-block"><pre><code>Use $evals to inspect this application, add meaningful
+evaluations, run them, and explain the failures.</code></pre><button class="copy-button icon-button" type="button" aria-label="Copy Evals prompt"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#copy"></use></svg></button></div></article></div>
+          <div class="guide-footnote" id="guide-footnote"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check-circle"></use></svg><span>Verified in live Codex sessions. <a href="https://github.com/Vatsa10/evals/blob/main/docs/live-verification.md">See the evidence ↗</a></span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="monitor-section section-wrap section-space" id="monitoring" aria-labelledby="monitor-title">
+      <div class="monitor-copy reveal"><span class="eyebrow"><span></span>KEEP THE FEEDBACK LOOP OPEN</span><h2 id="monitor-title">Your agent evolves.<br>Your checks should too.</h2><p>Run suites continuously. Capture real requests.<br>Bring production failures back into your dataset.</p><div class="monitor-features"><span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#tree-structure"></use></svg>Nested traces</span><span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#chats-circle"></use></svg>Conversation IDs</span><span><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#bell"></use></svg>Local alerts</span></div><a class="text-link" href="https://github.com/Vatsa10/evals/blob/main/skills/evals/references/monitoring.md" target="_blank" rel="noopener noreferrer">Explore monitoring<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a></div>
+      <div class="monitor-visual glass reveal"><div class="monitor-chrome"><span><span class="status-light"></span>support-conversation-1</span><span class="mono">SAMPLE TRACE</span></div><div class="trace-tree"><div class="trace-tree-row"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#cube"></use></svg><strong>support-request</strong><span>Completed</span></div><div class="trace-branch"><div class="trace-tree-row"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#wrench"></use></svg><span>get_order</span><small>tool</small></div><div class="trace-tree-row"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#sparkle"></use></svg><span>format_response</span><small>llm</small></div><div class="trace-tree-row"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check-circle"></use></svg><span>valid-response-json</span><small>passed</small></div></div></div><div class="monitor-storage"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#database"></use></svg><div><strong>Your history stays with you.</strong><span>SQLite storage + a local JSON API.</span></div><span class="storage-badge mono">LOCAL</span></div></div>
+    </section>
+
+    <section class="faq-section section-wrap section-space" aria-labelledby="faq-title"><div class="faq-heading reveal"><h2 id="faq-title">Clear answers.<br>Before you start.</h2><a class="text-link" href="https://github.com/Vatsa10/evals" target="_blank" rel="noopener noreferrer">Explore the repository<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a></div><div class="faq-list reveal">
+      <details><summary>Is Evals built on DeepEval?<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#plus"></use></svg></summary><p>Evals has its own runner, graders, tracing, and storage. We studied DeepEval, Langfuse, LangSmith, and Anthropic’s evaluation guidance for ideas. There is no DeepEval runtime dependency.</p></details>
+      <details><summary>Do I need a hosted account?<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#plus"></use></svg></summary><p>No. The engine runs locally with Python 3.11+ and no third-party runtime dependencies. Your application or custom LLM judges use their own model credentials. The coding-agent route uses your existing Claude Code or Codex setup.</p></details>
+      <details><summary>Can I evaluate my existing application?<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#plus"></use></svg></summary><p>Yes. Connect it with a Python function or a command that reads and writes JSON. Your adapter returns the available evidence: responses, tool calls, retrieved documents, messages, or environment state. The plugin can write this integration for you.</p></details>
+      <details><summary>Can I bring my own graders and models?<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#plus"></use></svg></summary><p>Yes. Built-in checks cover exact values, patterns, JSON, numeric limits, tools, and labeled retrieval. Custom adapters support domain checks and LLM judges with your provider, rubric, scores, and evidence.</p></details>
+      <details><summary>What does monitoring include today?<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#plus"></use></svg></summary><p>Continuous suite runs, request tracing, conversation IDs, online grading policies, SQLite history, local alerts, and a loopback JSON API. Hosted dashboards, external alert delivery, and provider auto-instrumentation are future extensions.</p></details>
+    </div></section>
+
+    <section class="final-cta section-wrap reveal"><div class="cta-light" aria-hidden="true"></div><h2>Build the next version.<br><span>Know it’s better.</span></h2><p>Your first evaluation is a good place to start.</p><a class="button button-primary" href="#setup">Get started<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-right"></use></svg></a><div class="cta-license"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#github-logo"></use></svg>Open source · Apache 2.0 · Yours to build on</div></section>
+  </main>
+
+  <footer class="site-footer section-wrap"><div class="footer-top"><a class="brand" href="#" aria-label="Evals home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>evals<span class="brand-period">.</span></a><p>Evidence for every iteration.</p><nav aria-label="Footer navigation"><a href="https://github.com/Vatsa10/evals#readme">Documentation</a><a href="https://github.com/Vatsa10/evals">GitHub<svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#arrow-up-right"></use></svg></a><a href="https://github.com/Vatsa10/evals/blob/main/LICENSE">License</a></nav></div><div class="footer-bottom"><span>© 2026 Evals contributors</span><span class="mono">INDEPENDENT ENGINE. OPEN BY DESIGN.</span><button type="button" class="motion-toggle" id="motion-toggle" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#pause"></use></svg><span>Pause motion</span></button></div></footer>
+  <div class="toast glass" id="toast" role="status" aria-live="polite"><svg class="icon" aria-hidden="true"><use href="./assets/icons.svg#check"></use></svg><span>Copied to clipboard</span></div>
+  <noscript><div class="noscript-note">All installation commands and documentation are available in the <a href="https://github.com/Vatsa10/evals#readme">GitHub README</a>. Interactive previews require JavaScript.</div></noscript>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: Deploy landing page
+
+# Run manually when you are ready to publish. The framework's push workflow
+# continues to test the Python package independently.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check website/app.js
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the static website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: website
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
