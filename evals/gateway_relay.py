@@ -14,7 +14,7 @@ import sys
 import time
 import uuid
 
-LIMIT = 65536
+LIMIT = 262144  # 32 KiB prompt plus worst-case JSON escaping and framing.
 
 
 def emit(value):
@@ -62,8 +62,8 @@ def main():
             return 1
         seen.add(value['id'])
         emit({'event': 'request', **value})
-        raw = sys.stdin.buffer.readline(262145)
-        if not raw or len(raw) > 262144:
+        raw = sys.stdin.buffer.readline(524289)
+        if not raw or len(raw) > 524288:
             return 1
         reply = json.loads(raw)
         if reply.get('id') != value['id']:

@@ -1,10 +1,12 @@
 """Adversarial mailbox checks with real Docker and an explicit model double."""
 
 import json
+import os
 from pathlib import Path
 import shutil
 import sys
 import tempfile
+import traceback
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -16,7 +18,8 @@ IMAGE = 'python@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d1772
 
 def check():
     with tempfile.TemporaryDirectory(prefix='evals-mailbox-attacks-') as temporary:
-        root = Path(temporary).resolve()
+        root = Path(temporary).resolve() / 'application'
+        root.mkdir(mode=0o755)
         shutil.copyfile(ROOT / 'evals' / 'model_client.py', root / 'model_client.py')
         config = {'environment_image': IMAGE, 'entrypoint': 'adapter.py', 'timeout_seconds': 15}
         results = []
@@ -38,13 +41,17 @@ def check():
             results.append({'name': name, 'rejected': reject, 'model_gateway': summary})
             print(name + ': passed', flush=True)
             return observation, summary
+        observation, _ = run('legitimate-model-call', 'from model_client import complete\ndef evaluate(r):\n    return {"output":complete("hello")["text"]}\n', expected_calls=1)
+        if observation['output'] != 'fixture-model-response':
+            raise AssertionError('Gateway positive control failed')
         run('required-call', 'def evaluate(r):\n    return {"output":"fake model reply"}\n', reject=True, expected_calls=0)
         for name, request_code in [
                 ('symlink', 'os.symlink("/etc/passwd", "/model-gateway/request.json")'),
                 ('fifo', 'os.mkfifo("/model-gateway/request.json")'),
                 ('traversal-id', 'Path("/model-gateway/request.json").write_text(json.dumps({"id":"../../key", "prompt":"hello"}))'),
                 ('arbitrary-command', 'Path("/model-gateway/request.json").write_text(json.dumps({"id":"0"*32,"prompt":"hello","argv":["sh"]}))')]:
-            code = 'import os, json\nfrom pathlib import Path\ndef evaluate(r):\n    ' + request_code + '\n    return {"output":"attempted"}\n'
+            code = ('import os, json, time\nfrom pathlib import Path\ndef evaluate(r):\n    ' + request_code +
+                    '\n    time.sleep(0.5)\n    return {"output":"attempted"}\n')
             run(name, code, reject=True, expected_calls=0)
         observation, summary = run('budget-cap', '''from model_client import complete
 def evaluate(r):
@@ -57,6 +64,12 @@ def evaluate(r):
 ''', expected_calls=1)
         if observation['output'] != 'blocked' or summary['rejected_calls'] != 1:
             raise AssertionError('Model-call budget was bypassed')
+        observation, _ = run('escaped-prompt-at-limit', '''from model_client import complete
+def evaluate(r):
+    return {"output": complete(chr(0) * 32768)["text"]}
+''', expected_calls=1)
+        if observation['output'] != 'fixture-model-response':
+            raise AssertionError('A valid prompt at the documented byte limit was rejected')
         observation, _ = run('isolation-and-bounded-mailbox', '''from model_client import complete
 from pathlib import Path
 import os, socket
@@ -92,4 +105,10 @@ def evaluate(r):
 
 
 if __name__ == '__main__':
-    check()
+    try:
+        check()
+    except Exception:
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            message = traceback.format_exc().replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+            print('::error title=Mailbox integration failure::' + message)
+        raise

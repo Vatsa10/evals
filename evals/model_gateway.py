@@ -125,8 +125,8 @@ class ModelGateway:
             def serve():
                 try:
                     while not stopped.is_set():
-                        raw = process.stdout.readline(65537)
-                        if not raw or len(raw) > 65536:
+                        raw = process.stdout.readline(262145)
+                        if not raw or len(raw) > 262144:
                             raise RuntimeError('Model relay stopped or exceeded its event limit')
                         event = json.loads(raw)
                         if event.get('event') == 'ready':
