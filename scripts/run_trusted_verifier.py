@@ -34,6 +34,10 @@ def main():
     import subprocess
     config = json.loads(git(contract_root, 'show', os.environ['CONTRACT_COMMIT'] + ':contract.json'))
     validate_contract(config)
+    if config.get('model_gateway', {}).get('backend') == 'claude-cli':
+        import shutil
+        if not shutil.which('claude'):
+            raise ValueError('Live verification requires a protected runner with an authenticated Claude CLI')
     subprocess.run(['docker', 'pull', config['environment_image']], check=True, env=clean_environment())
     try:
         descriptor = os.open(private, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)

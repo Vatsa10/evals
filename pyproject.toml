@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evals-framework"
-version = "0.5.1"
+version = "0.6.0"
 description = "Independent evaluation engine and workflows for Claude Code and Codex"
 requires-python = ">=3.11"
 dependencies = []
@@ -12,7 +12,7 @@ license = "Apache-2.0"
 readme = "README.md"
 
 [project.optional-dependencies]
-verifier = ["cryptography>=44,<47"]
+verifier = ["cryptography>=44,<47", "pytest>=9,<10"]
 
 [project.scripts]
 evals = "evals.cli:main"

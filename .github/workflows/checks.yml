@@ -32,3 +32,7 @@ jobs:
           python-version: '3.13'
       - run: python -m pip install -r verifier-requirements.lock
       - run: python scripts/check_verifier_docker.py --pull
+      - run: python scripts/check_gateway_docker.py
+      - run: python scripts/live_isolated_test.py --workspace .evals/live-fixture --model fixture
+      - run: python scripts/prepare_remote_test.py --workspace .evals/live-fixture --output .evals/remote-kit
+      - run: python -m evals verifier run-kit --kit .evals/remote-kit --private-key .evals/live-fixture/development-signing.pem --public-key .evals/live-fixture/development-public.pem --review .evals/live-fixture/review.json --request-id portable-local-fixture --output .evals/portable-result

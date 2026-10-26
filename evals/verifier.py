@@ -5,6 +5,7 @@ supervisor. A subprocess on the agent's own machine is not a trust boundary.
 """
 
 import copy
+from contextlib import nullcontext
 import hashlib
 from importlib.metadata import version
 import json
@@ -129,7 +130,7 @@ def pinned_tree(repo, ref, destination, *, paths=None):
 def validate_contract(contract):
     keys = {'schema_version', 'name', 'application_paths', 'entrypoint', 'function',
             'public_suites', 'holdout_suites', 'environment_image', 'max_target_calls',
-            'timeout_seconds', 'require_review'}
+            'timeout_seconds', 'require_review', 'model_gateway', 'pytest'}
     if (not isinstance(contract, dict) or set(contract) - keys
             or type(contract.get('schema_version')) is not int or contract['schema_version'] != 1):
         raise ValueError('Unsupported verifier contract schema or unknown fields')
@@ -158,6 +159,14 @@ def validate_contract(contract):
             raise ValueError(f'{key} must be an integer between 1 and {limit}')
     if type(contract.get('require_review', True)) is not bool:
         raise ValueError('require_review must be a boolean')
+    if 'model_gateway' in contract:
+        from evals.model_gateway import validate
+        validate(contract['model_gateway'])
+        if contract.get('timeout_seconds', 30) < contract['model_gateway'].get('timeout_seconds', 120) + 5:
+            raise ValueError('Target timeout must exceed the gateway provider timeout by at least five seconds')
+    if 'pytest' in contract:
+        from evals.pytest_verifier import validate_config
+        validate_config(contract['pytest'])
 
 
 def apply_patch(candidate, patch, paths, *, source_entries=None):
@@ -205,10 +214,10 @@ def apply_patch(candidate, patch, paths, *, source_entries=None):
     return sorted(set(changed))
 
 
-def bounded_run(argv, payload, timeout):
+def bounded_run(argv, payload, timeout, *, cwd=None):
     """Cap both streams, kill on timeout, and avoid buffering attacker output."""
     process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, env=clean_environment())
+                               stderr=subprocess.PIPE, env=clean_environment(), cwd=cwd)
     buffers, exceeded = [bytearray(), bytearray()], threading.Event()
     def drain(stream, buffer):
         while chunk := stream.read(4096):
@@ -252,7 +261,7 @@ def bounded_run(argv, payload, timeout):
     return bytes(buffers[0])
 
 
-def container_target(contract, app, payload):
+def container_target(contract, app, payload, *, gateway=None):
     docker = shutil.which('docker')
     if not docker:
         raise ValueError('Docker is required; there is no insecure process fallback')
@@ -271,10 +280,21 @@ def container_target(contract, app, payload):
             '-i', 'PATH=/usr/local/bin:/usr/bin:/bin', 'HOME=/tmp', 'LANG=C.UTF-8',
             'python', '-I', '-B', '/target_worker.py', contract['entrypoint'], contract.get('function', 'evaluate')]
     try:
-        # Opaque task IDs/metadata, grader references and trial numbers stay private.
-        public_request = {'input': payload['input'], 'context': payload.get('context')}
-        raw = bounded_run(argv, canonical(public_request), contract.get('timeout_seconds', 30))
-        return json.loads(raw, parse_constant=lambda x: (_ for _ in ()).throw(ValueError('Invalid JSON number')))
+        scope = {key: payload.get(key) for key in ('case_id', 'trial', 'evals_phase')}
+        with gateway.channel(scope=scope) if gateway else nullcontext(None) as channel:
+            if channel:
+                # Keep --network=none. Only a size-limited mailbox is writable;
+                # the relay has no host filesystem or provider credentials.
+                index = argv.index('--workdir=/tmp')
+                argv[index:index] = ['--mount', f'type=volume,source={channel["volume"]},target=/model-gateway']
+                index = argv.index('LANG=C.UTF-8') + 1
+                argv.insert(index, 'EVALS_MODEL_MAILBOX=/model-gateway')
+            # Opaque task IDs/metadata, grader references and trial numbers stay private.
+            public_request = {'input': payload['input'], 'context': payload.get('context')}
+            raw = bounded_run(argv, canonical(public_request), contract.get('timeout_seconds', 30))
+            if channel and (not channel['completed'] or channel['failures']):
+                raise RuntimeError('Target did not complete a valid request through its required model gateway')
+            return json.loads(raw, parse_constant=lambda x: (_ for _ in ()).throw(ValueError('Invalid JSON number')))
     finally:
         subprocess.run([docker, 'rm', '-f', name], capture_output=True,
                        timeout=20, env=clean_environment(), check=False)
@@ -318,6 +338,7 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
               'supervisor_environment': {'python': sys.version.split()[0], 'platform': platform.platform()},
               'supervisor_dependencies': {'cryptography': version('cryptography')},
               'reason': 'Verification did not complete'}
+    gateway = None
     try:
         with tempfile.TemporaryDirectory(prefix='evals-verifier-') as temporary:
             root = Path(temporary).resolve()
@@ -367,9 +388,28 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
                     suite['target'] = {'type': 'python', 'path': str(baseline / contract['entrypoint'])}
                     validate_suite(suite, contract_dir)
                     specs.append((split, name, suite))
-            planned = 2 * sum(len(s['cases']) * s.get('trials', 1) for _, _, s in specs)
+            pytest_manifest = None
+            if 'pytest' in contract:
+                from evals.pytest_verifier import load_manifest
+                pytest_manifest = load_manifest(contract_dir, contract['pytest'])
+            planned = 2 * (sum(len(s['cases']) * s.get('trials', 1) for _, _, s in specs) +
+                           (sum(s['target_calls'] for s in pytest_manifest.values()) if pytest_manifest else 0))
             if planned > contract.get('max_target_calls', 100):
                 raise ValueError('Baseline and candidate exceed the pinned target-call budget')
+            if 'model_gateway' in contract:
+                from evals.model_gateway import ModelGateway
+                if contract['model_gateway'].get('max_model_calls', 12) < planned:
+                    raise ValueError('Model-call budget must cover the required model call in every target invocation')
+                gateway = ModelGateway(contract['model_gateway'], contract['environment_image'])
+            actual_calls = 0
+            def invoke_target(app, payload):
+                nonlocal actual_calls
+                actual_calls += 1
+                if actual_calls > contract.get('max_target_calls', 100):
+                    raise RuntimeError('Pinned target-call budget exhausted')
+                scoped = dict(payload, evals_phase='baseline' if app == baseline else 'candidate')
+                return (container_target(contract, app, scoped, gateway=gateway) if gateway else
+                        container_target(contract, app, payload))
             record.update(planned_target_calls=planned, review_findings=review_patch(patch))
             public_inputs = {sha(canonical({'input': c['input'], 'context': c.get('context')}))
                              for split, _, s in specs if split == 'public' for c in s['cases']}
@@ -393,11 +433,11 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
             # Baseline is recomputed from the pinned original for every submission.
             for index, (split, name, suite) in enumerate(specs):
                 before = run_suite(suite, contract_dir,
-                                   target_invoker=lambda p: container_target(contract, baseline, p))
+                                   target_invoker=lambda p: invoke_target(baseline, p))
                 after_suite = copy.deepcopy(suite)
                 after_suite['target']['path'] = str(app_candidate / contract['entrypoint'])
                 after = run_suite(after_suite, contract_dir,
-                                  target_invoker=lambda p: container_target(contract, app_candidate, p))
+                                  target_invoker=lambda p: invoke_target(app_candidate, p))
                 expected = {'collected': len(suite['cases']) * suite.get('trials', 1), 'skipped': 0, 'xfail': 0,
                             'trials': [[case['id'], trial,
                                         [g.get('id', str(i + 1)) for i, g in enumerate(case['graders'])]]
@@ -415,6 +455,30 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
                            {'expected': expected, 'baseline': actual_before, 'candidate': actual_after})
             improved = any(c['improvements'] or c['metric_improvements'] for c in comparisons)
             regressions = any(c['regressions'] or c['metric_regressions'] for c in comparisons)
+            if pytest_manifest:
+                from evals.pytest_verifier import invariants, run_tests
+                pytest_summaries = []
+                for split in ('public', 'holdout'):
+                    before = run_tests(contract_dir, contract['pytest'], split, lambda p: invoke_target(baseline, p))
+                    after = run_tests(contract_dir, contract['pytest'], split, lambda p: invoke_target(app_candidate, p))
+                    matched = invariants(before, pytest_manifest[split]) and invariants(after, pytest_manifest[split])
+                    invariant_ok &= matched
+                    baseline_ok &= before['summary']['error'] == 0
+                    candidate_ok &= after['summary']['passed'] == after['summary']['collected'] and after['summary']['error'] == 0
+                    regressions |= any(value == 'passed' and after['outcomes'].get(node) != 'passed'
+                                       for node, value in before['outcomes'].items())
+                    improved |= any(value != 'passed' and after['outcomes'].get(node) == 'passed'
+                                    for node, value in before['outcomes'].items())
+                    pytest_summaries.append({'split': split, 'baseline': before['summary'], 'candidate': after['summary'],
+                                             'count_invariants_match': matched, 'pytest_version': before['pytest_version']})
+                    write_json(output / 'private' / f'pytest-{split}-baseline.json', before)
+                    write_json(output / 'private' / f'pytest-{split}-candidate.json', after)
+                record['pytest'] = pytest_summaries
+            invariant_ok &= actual_calls == planned
+            if gateway:
+                summary = gateway.summary()
+                candidate_ok &= summary['errors'] == summary['rejected_calls'] == 0
+            record['actual_target_calls'] = actual_calls
             checks_passed = bool(invariant_ok and baseline_ok and candidate_ok and not regressions)
             review_ok = ((review is not None and review['verdict'] == 'approved') or
                          (not contract.get('require_review', True) and review is None))
@@ -434,6 +498,9 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
         record.update(status='rejected', verification_eligible=False,
                       reason='Verifier rejected the submission; consult private diagnostics')
     record['completed_at'] = utc_now()
+    if gateway:
+        record['model_gateway'] = gateway.summary()
+        write_json(output / 'private' / 'model-gateway.json', gateway.records)
     record['private_evidence_sha256'] = {
         path.relative_to(output).as_posix(): sha(path.read_bytes())
         for path in sorted((output / 'private').glob('*.json'))}
@@ -479,7 +546,7 @@ def submit(source_repo, source_ref, paths, output):
 
 
 def verify_decision(envelope, public_key, *, patch, source_ref, contract_ref, request_id,
-                    contract_file='contract.json'):
+                    contract_file='contract.json', require_live_model=False):
     from evals.signing import verify
     record = verify(envelope, public_key)
     expected = {'schema_version': 1, 'patch_sha256': sha(Path(patch).read_bytes()),
@@ -488,4 +555,11 @@ def verify_decision(envelope, public_key, *, patch, source_ref, contract_ref, re
                 'trust_profile': 'external-supervisor/docker-target'}
     if any(record.get(key) != value for key, value in expected.items()):
         raise ValueError('Signed decision does not match this patch, pinned refs or verifier request')
+    if require_live_model:
+        gateway = record.get('model_gateway', {})
+        if (gateway.get('live') is not True or gateway.get('backend') != 'claude-cli'
+                or gateway.get('errors') != 0 or gateway.get('rejected_calls') != 0
+                or not gateway.get('model_ids') or gateway.get('completed', 0) < 1
+                or gateway.get('completed', 0) < record.get('actual_target_calls', 0)):
+            raise ValueError('Decision does not establish the required live-model execution')
     return record

@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.VERIFIER_RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 30
     environment: isolated-verifier
     steps:
@@ -77,3 +77,6 @@ jobs:
           name: signed-decision
           path: ${{ runner.temp }}/evals-public-decision/decision.json
           if-no-files-found: warn
+      - name: Remove temporary signing key
+        if: always()
+        run: python -c "import os; from pathlib import Path; (Path(os.environ['RUNNER_TEMP']) / 'evals-verification' / 'decision-key.pem').unlink(missing_ok=True)"

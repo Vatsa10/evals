@@ -50,16 +50,22 @@ application dependencies into the trusted image; it must contain Python and
 `/usr/bin/env`. See [Docker runtime controls](https://docs.docker.com/engine/containers/run/)
 and [Python isolated mode](https://docs.python.org/3/using/cmdline.html#cmdoption-I).
 
-**Current isolated profile:** Python JSON adapters, native Evals suites,
-deterministic graders and trusted Python custom graders. It does not run pytest.
-Collected trial/grader identities must match the pinned manifest exactly.
-Skipped/xfail counts are zero because this runner has no skip/xfail mechanism.
-A future pytest backend needs actual discovery/skip/xfail manifests.
+When enabled, the model gateway adds a fixed mailbox path variable and a bounded
+tmpfs volume. Its credential-free relay runs with capabilities dropped; UID 0
+owns the sticky mailbox and replies, while the application remains UID 65534.
+Only the independently trusted supervisor invokes the configured model provider.
 
-Network is unavailable in this profile. Existing live-provider evaluations
-continue through the local workflow. Live API targets need a separately
-provisioned constrained model gateway before they can use this isolated profile;
-this release does not implement that gateway or claim isolated live-LLM tests.
+**Current isolated profile:** Python JSON adapters, native suites,
+deterministic/custom graders and trusted pytest assertions using `evals_target`.
+Native identities and actual pytest inventories must match pinned manifests.
+The strict pytest profile rejects skips, xfail and deselection.
+
+Target networking stays disabled. Version 0.6.0 adds a bounded mailbox gateway
+for real model calls through the supervisor's existing Claude CLI login, without
+exposing credentials or a general network proxy. See the
+[live test and remote preparation guide](realtime-verification.md). Arbitrary
+HTTP providers are not implemented by this gateway; ordinary local adapters
+remain provider-neutral.
 Containers share a host kernel; use a VM or stronger sandbox when that threat
 model requires it.
 
@@ -203,6 +209,7 @@ branch restrictions before using it:
 | `VERIFIER_CONTRACT_COMMIT` variable | Reviewed full contract commit |
 | `VERIFIER_READ_TOKEN` secret | Read-only checkout token for private repositories |
 | `VERIFIER_SIGNING_KEY` secret | Private Ed25519 PEM from trusted key generation |
+| `VERIFIER_RUNNER_LABEL` repository variable (optional) | Existing protected runner label; live Claude mode requires a pre-authenticated runner |
 
 The job checks out engine, source and contract separately, reads dispatch data
 as environment data rather than shell source, removes the temporary key and

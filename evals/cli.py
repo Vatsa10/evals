@@ -139,6 +139,12 @@ def main(argv=None):
     receipt.add_argument("--source-ref", required=True)
     receipt.add_argument("--request-id", required=True)
     receipt.add_argument("--contract-file", default="contract.json")
+    receipt.add_argument("--require-live-model", action="store_true", help="Reject offline or fixture-only receipts")
+    kit = verification_commands.add_parser("run-kit", help="Run a private portable test kit on a separately controlled runner")
+    for flag in ('kit', 'output', 'private-key', 'public-key'):
+        kit.add_argument('--' + flag, type=Path, required=True)
+    kit.add_argument('--request-id', required=True)
+    kit.add_argument('--review', type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "import-openai":
@@ -155,10 +161,15 @@ def main(argv=None):
                 print("Created verifier key pair. Keep the private key outside agent-accessible storage.")
             elif args.verifier_command == "submit":
                 print(json.dumps(verifier.submit(args.source_repo, args.source_ref, args.allow, args.output), indent=2))
+            elif args.verifier_command == "run-kit":
+                from evals.remote_test import run
+                result = run(args.kit, args.output, args.private_key, args.public_key, args.request_id, args.review)
+                print(json.dumps(result, indent=2))
+                return int(not result['verification_eligible'])
             elif args.verifier_command == "verify-decision":
                 record = verifier.verify_decision(read_json(args.decision), args.public_key, patch=args.patch,
                     source_ref=args.source_ref, contract_ref=args.contract_ref, request_id=args.request_id,
-                    contract_file=args.contract_file)
+                    contract_file=args.contract_file, require_live_model=args.require_live_model)
                 print(json.dumps(record, indent=2))
                 return int(not record['verification_eligible'])
             else:

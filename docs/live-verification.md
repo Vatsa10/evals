@@ -1,5 +1,27 @@
 # Live verification
 
+## Version 0.6.0: real model calls inside the isolated workflow
+
+Verified on 2026-10-26 using the existing Claude Code 2.1.310 login and configured
+`claude-opus-5-5[1m]` model. Twelve actual model calls passed through the bounded
+mailbox gateway, with target networking still disabled and no credentials or
+grading state in either target or relay. A separate connectivity smoke call
+completed before the 12-call frozen evaluation.
+
+The application policy was the only changed file. Public native checks improved
+from 1/2 to 2/2; native holdouts remained 2/2. The actual pytest public boundary
+test improved from 0/1 to 1/1; its holdout remained 1/1. Skips, xfail, xpass,
+deselection and evaluation errors were zero. Collection and target-call counts
+matched; the signed decision authenticated as `verified_improvement`.
+
+[Summary evidence](evidence/live-isolated-2026-10-26.json) and the
+[reproduction/remote preparation guide](realtime-verification.md) describe the
+test. Raw traces/reports remain private in ignored workspaces. The application
+and data are synthetic; criteria were hidden from the target, not from this
+host-side coding agent. Independent account isolation and production execution
+remain explicitly unproven. Remote configuration is prepared without changing
+accounts, repositories or secrets, as requested.
+
 ## Version 0.5.1: external patch verification
 
 Verified on 2026-10-26 with actual Docker Engine 28.4.0 containers, a pinned

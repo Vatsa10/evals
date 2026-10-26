@@ -1,0 +1,133 @@
+{
+  "test_kind": "live_model_real_docker_and_pytest",
+  "engine_version": "0.6.0",
+  "status": "verified_improvement",
+  "signature_verified": true,
+  "target_calls": 12,
+  "model_gateway": {
+    "backend": "claude-cli",
+    "live": true,
+    "transport": "docker-tmpfs-mailbox",
+    "model_calls": 12,
+    "completed": 12,
+    "errors": 0,
+    "rejected_calls": 0,
+    "max_model_calls": 12,
+    "model_ids": [
+      "claude-opus-5-5[1m]"
+    ],
+    "provider_cli_version": "2.1.310 (Claude Code)",
+    "usage": {
+      "input_tokens": 24,
+      "output_tokens": 148,
+      "cache_creation_input_tokens": 33754,
+      "cache_read_input_tokens": 7788
+    }
+  },
+  "native_suites": [
+    {
+      "split": "public",
+      "baseline": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "error": 0,
+        "success_rate": 0.5
+      },
+      "candidate": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "error": 0,
+        "success_rate": 1.0
+      }
+    },
+    {
+      "split": "holdout",
+      "baseline": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "error": 0,
+        "success_rate": 1.0
+      },
+      "candidate": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "error": 0,
+        "success_rate": 1.0
+      }
+    }
+  ],
+  "pytest": [
+    {
+      "split": "public",
+      "baseline": {
+        "collected": 1,
+        "passed": 0,
+        "failed": 1,
+        "error": 0,
+        "skipped": 0,
+        "xfail": 0,
+        "xpassed": 0
+      },
+      "candidate": {
+        "collected": 1,
+        "passed": 1,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "xfail": 0,
+        "xpassed": 0
+      },
+      "count_invariants_match": true,
+      "pytest_version": "9.1.1"
+    },
+    {
+      "split": "holdout",
+      "baseline": {
+        "collected": 1,
+        "passed": 1,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "xfail": 0,
+        "xpassed": 0
+      },
+      "candidate": {
+        "collected": 1,
+        "passed": 1,
+        "failed": 0,
+        "error": 0,
+        "skipped": 0,
+        "xfail": 0,
+        "xpassed": 0
+      },
+      "count_invariants_match": true,
+      "pytest_version": "9.1.1"
+    }
+  ],
+  "count_invariants_match": true,
+  "contract_sha256": "e0152ec63a0b780e93f30f49dd196d0065a18c1ed658743e2ccf6fa70c878e65",
+  "patch_sha256": "12fe8ce0ac7a0ed68937517b5e02d9d50c4447e08d6eea89d9638d9eef88587c",
+  "engine_sha256": "c559eb0bd42d4ac4399911f1bbf56c1d8815aa06ff164e796ce79cc15f53926d",
+  "environment_image_digest": "python@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d17725460962",
+  "private_evidence_sha256": {
+    "private/0-baseline.json": "32b2a5841791b9bb8cd2bfead4c8298f149b27e43980c3f2a9138b49adc8de5c",
+    "private/0-candidate.json": "f00279f849bc0e314f2c6d0424185e53b14f3d1d268290cac66eb88cd4c57735",
+    "private/0-inventory.json": "9bbfa12b25051825dda314e317a46b6b567f2842fbccf7aadc83269544dccc11",
+    "private/1-baseline.json": "138eba9d3c26407b0d1a988a6ef97263b0be7b09cd63da7c441feebfa2176c00",
+    "private/1-candidate.json": "075c667640e1c4033cc47b054bdb29f2872dedbe87ae1b2383f70b4659aec885",
+    "private/1-inventory.json": "b03ccda574a16a19c1986d4cf9a2ae8f828e73323d36d94c70b4b921006ba2e6",
+    "private/model-gateway.json": "9d42b69232798287dc8dae036a5f0532f894fe754e84a4086d169d7778055795",
+    "private/pytest-holdout-baseline.json": "9b18a6e54454a505352119bac8374bbf03a851799b42b6ee55d7395a70f42bd2",
+    "private/pytest-holdout-candidate.json": "946c4e097dd01e8dac8eca2bfdb024901eb02ef6affb12fff638c4e1edc37308",
+    "private/pytest-public-baseline.json": "83188ff378f54f779a1b0556be5ba1f5167eaf628dc6af7e3663310383514bf6",
+    "private/pytest-public-candidate.json": "b8a847d198154f97e0fc3bca568a840a453ca00cf62034c160ee64030d9e8e28"
+  },
+  "data_kind": "synthetic_policy_application",
+  "account_isolation_proven": false,
+  "remote_status": "prepared_not_executed",
+  "review_kind": "integration_fixture_not_human_approval"
+}

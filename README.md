@@ -50,6 +50,12 @@ private grading contracts, run targets in restricted containers, then
 authenticate an Ed25519-signed decision. This requires a separately controlled
 runner; the same host user controlling both sides does not establish isolation.
 
+The [live verification test](docs/realtime-verification.md) runs real model calls
+through a bounded Claude gateway while keeping target networking disabled,
+then checks native/pytest holdouts and authenticates the signed decision.
+A private portable kit prepares the same test for a separately controlled runner
+without creating accounts, repositories or secrets.
+
 We reviewed [OpenAI Evals](docs/reference-openai-evals.md). Import its simple
 `input`/`ideal` JSONL datasets using `evals import-openai`; its runtime is not a
 dependency.

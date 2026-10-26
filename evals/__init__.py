@@ -1,6 +1,6 @@
 """An independent evaluation engine. No DeepEval runtime dependency."""
 
-__version__ = "0.5.1"
+__version__ = "0.6.0"
 
 
 def __getattr__(name):

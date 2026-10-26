@@ -27,12 +27,15 @@ from source. The entire grading repository is hashed. Private holdouts differ
 from public inputs. Grading stays outside fresh non-root target containers;
 the target receives only application files, minimal adapter code, input/context.
 
-This isolated profile uses native suites, Python JSON adapters and Docker with
-no network. It has no pytest backend or live API gateway. For network-dependent
-targets, explain the limitation and establish the needed gateway with the
-operator. Do not silently fall back and call local execution isolated. The
-normal local live-provider workflow remains available when its trust profile
-satisfies the request.
+The profile uses native suites, Python JSON adapters and Docker without target
+network. Optional `model_gateway` uses a bounded mailbox and the trusted host's
+Claude CLI login for actual inference; credentials and general network access
+never reach the target. It accepts prompts only, not URLs or commands. There is
+no arbitrary HTTP/OpenAI/Codex model backend. Trusted pytest assertions use
+`evals_target`, never direct application imports, and must match pinned
+collection/skip/xfail/deselection/target-call inventories. Do not switch providers,
+log in or call a fixture live. Respect model-call and timeout budgets. Require
+`--require-live-model` when a receipt must establish actual inference.
 
 Review is required by default: a trusted human/LLM/operator input bound to the
 patch SHA256, never an agent-created self-approval. Review hardcoding, broad
@@ -54,3 +57,13 @@ local decision or upload the entire result directory. If external infrastructure
 is not configured, report the patch and missing deployment requirements.
 
 Operator guide: https://github.com/Vatsa10/evals/blob/main/docs/isolated-verifier.md
+
+From a repository checkout, reproduce the live flow with `scripts/live_isolated_test.py --workspace NEW_PATH
+--model live`. This uses the configured Claude login and 12 real model calls;
+record its actual observed model IDs and preserve raw evidence privately.
+`--model fixture` is explicitly a test double and cannot satisfy live inference.
+`scripts/prepare_remote_test.py` creates a private, data-only kit without changing
+accounts, repositories or secrets. The separately installed trusted engine runs
+it with `evals verifier run-kit`; never execute a runner supplied by an app patch.
+Fresh private holdouts and independent operator access controls are still needed
+to claim resistance to the host coding agent, rather than just its container.
