@@ -85,6 +85,10 @@ code. Human review can inspect the diff and decision in the same workflow.
 
 ## Evidence limits
 
+Read [the external verifier](verifier.md) for stronger isolation. Local decisions
+use the `in_session` trust profile; signed external decisions use submitted
+patches and independently pinned private contracts.
+
 Verification applies to the selected cases, recorded trials, and supplied graders.
 Repeated trials describe observed variability; comparisons do not estimate
 statistical significance or guarantee production behavior. Run independent

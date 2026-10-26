@@ -1,0 +1,79 @@
+name: Isolated patch verification
+
+# Manual dispatch by a trusted reviewer. Never execute untrusted PR workflows
+# with the signing key. Configure the protected environment before first use.
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Full pinned original application commit
+        required: true
+      patch_base64:
+        description: Base64 encoded Git application diff (small patches only)
+        required: true
+      request_id:
+        description: Unique verifier-issued submission ID (do not reuse)
+        required: true
+      review_base64:
+        description: Optional base64 trusted diff review JSON bound to patch hash
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: isolated-verifier
+    steps:
+      - name: Require trusted configuration
+        env:
+          SOURCE_REPOSITORY: ${{ vars.VERIFIER_SOURCE_REPOSITORY }}
+          CONTRACT_REPOSITORY: ${{ vars.VERIFIER_CONTRACT_REPOSITORY }}
+          CONTRACT_COMMIT: ${{ vars.VERIFIER_CONTRACT_COMMIT }}
+        run: |
+          test -n "$SOURCE_REPOSITORY"
+          test -n "$CONTRACT_REPOSITORY"
+          test -n "$CONTRACT_COMMIT"
+      - uses: actions/checkout@v4
+        with:
+          path: engine
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.VERIFIER_SOURCE_REPOSITORY }}
+          ref: ${{ inputs.source_commit }}
+          token: ${{ secrets.VERIFIER_READ_TOKEN || github.token }}
+          path: trusted-source
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.VERIFIER_CONTRACT_REPOSITORY }}
+          ref: ${{ vars.VERIFIER_CONTRACT_COMMIT }}
+          token: ${{ secrets.VERIFIER_READ_TOKEN || github.token }}
+          path: trusted-contract
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install trusted engine
+        working-directory: engine
+        run: python -m pip install -r verifier-requirements.lock .
+      - name: Verify submitted patch
+        working-directory: engine
+        env:
+          SOURCE_COMMIT: ${{ inputs.source_commit }}
+          CONTRACT_COMMIT: ${{ vars.VERIFIER_CONTRACT_COMMIT }}
+          SUBMITTED_PATCH: ${{ inputs.patch_base64 }}
+          TRUSTED_REVIEW: ${{ inputs.review_base64 }}
+          VERIFICATION_REQUEST_ID: ${{ inputs.request_id }}
+          VERIFIER_SIGNING_KEY: ${{ secrets.VERIFIER_SIGNING_KEY }}
+        run: python -I scripts/run_trusted_verifier.py
+      - name: Publish signed decision only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-decision
+          path: ${{ runner.temp }}/evals-public-decision/decision.json
+          if-no-files-found: warn

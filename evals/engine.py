@@ -103,7 +103,7 @@ def source_digest(adapter, root):
     return None
 
 
-def run_suite(suite, root, trials=None):
+def run_suite(suite, root, trials=None, *, target_invoker=None):
     root = Path(root).resolve()
     suite = json.loads(json.dumps(suite, allow_nan=False))
     if trials is not None:
@@ -125,10 +125,12 @@ def run_suite(suite, root, trials=None):
                     observation = case["observation"]
                 else:
                     # References and grading criteria are not sent to the target.
-                    observation = invoke(suite["target"], {
+                    payload = {
                         "case_id": case["id"], "trial": trial,
                         "input": case["input"], "context": case.get("context"),
-                    }, root)
+                    }
+                    observation = (target_invoker(payload) if target_invoker is not None
+                                   else invoke(suite["target"], payload, root))
                 result["target_duration_ms"] = (round((time.perf_counter() - timer) * 1000, 3)
                                                 if suite.get("mode", "live") == "live" else None)
                 validate_observation(observation)

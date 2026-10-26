@@ -6,7 +6,8 @@ changes your prompts/tools/code, and verifies the result against a frozen baseli
 
 Our engine, graders, tracing, and storage are implemented here. DeepEval,
 Langfuse, LangSmith, and Anthropic's evaluation guidance inform the design.
-Python 3.11+ is the only runtime requirement.
+The core engine requires Python 3.11+. Optional signed external verification
+also requires Docker, Git and the `verifier` signing extra.
 
 Explore the [DeepWiki overview](https://deepwiki.com/Vatsa10/evals/1-overview)
 for a guided introduction to the repository and its architecture.
@@ -41,6 +42,17 @@ evidence-backed failure brief, edit the actual system, and check the candidate.
 Sessions retain the goal, attempt budget, source diffs, reports, and final decision.
 Changed criteria, grader regressions, evaluation errors, or untested source edits
 prevent a verified result. The primary acceptance suite must pass by default.
+
+Local hashes are drift checks inside the coding session. For a verifier the
+agent cannot rewrite, use [isolated patch verification](docs/isolated-verifier.md):
+submit an allowlisted diff, recompute baseline/candidate from pinned source and
+private grading contracts, run targets in restricted containers, then
+authenticate an Ed25519-signed decision. This requires a separately controlled
+runner; the same host user controlling both sides does not establish isolation.
+
+We reviewed [OpenAI Evals](docs/reference-openai-evals.md). Import its simple
+`input`/`ideal` JSONL datasets using `evals import-openai`; its runtime is not a
+dependency.
 
 Read the [end-to-end workflow](docs/improvement-workflow.md). An
 [actual LLM example](examples/llm_prompt) demonstrates improving a system prompt;
@@ -163,7 +175,7 @@ python -m pip install "git+https://github.com/Vatsa10/evals.git"
 ```
 
 Use `python -m pip install -e /path/to/evals` for development. Package builds may
-download setuptools; the engine has no third-party runtime dependencies.
+download setuptools; the core engine has no third-party runtime dependencies.
 Without installation, use `python /path/to/evals/scripts/evals.py <command>`.
 
 Adapters receive `input`, `context`, `case_id`, and `trial`, then return evidence.
@@ -241,12 +253,14 @@ six-case run across five system categories, with vision explicitly untested.
 ## Development and verification
 
 ```console
+python -m pip install -r verifier-requirements.lock
 python -m unittest discover -s tests -v
 python scripts/build_plugin.py dist/evals-marketplace
 claude plugin validate .claude-plugin/plugin.json
 ```
 
-CI checks Windows/Linux with Python 3.11/3.13, builds the plugin, and runs a suite.
+CI checks Windows/Linux with Python 3.11/3.13, builds the plugin, runs a suite
+and separately exercises adversarial Docker verification on Linux.
 Live Codex verification requires a signed-in Codex CLI and is separate from
 credential-free CI. See [live verification](docs/live-verification.md).
 

@@ -270,6 +270,7 @@ def finish(directory):
         status = "verified_improvement" if selected else (
             "baseline_satisfied" if baseline_passes and current == state["baseline_sources"] else "not_verified")
         decision = {"session_id": state["id"], "goal": state["goal"], "status": status,
+                    "trust_profile": "in_session", "tamper_resistant": False, "signed": False,
                     "selected_attempt": selected["number"] if selected else None,
                     "reason": selected["reason"] if selected else (
                         "The original application already passed the acceptance checks" if status == "baseline_satisfied" else

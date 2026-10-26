@@ -45,6 +45,10 @@ Preserve explicitly requested output paths and existing valid suites/sessions.
 
 Read [the engine contract](references/framework.md) when authoring cases/adapters.
 Read [the improvement workflow](references/improvement.md) before starting a loop.
+For patch-only verification, private holdouts, signed decisions or an
+agent-resistant boundary, read [the external verifier](references/verifier.md).
+Local hashes detect session drift; they do not isolate grading from an agent
+that can rewrite its own session.
 For provenance, category coverage, evolving-dataset comparisons or a shareable
 report page, read [reporting](references/reporting.md).
 For application coverage beyond a single agent, read the relevant rows of the

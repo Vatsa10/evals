@@ -1,5 +1,10 @@
 # Guided commands for Claude Code and Codex
 
+For agent-resistant grading, see [external patch verification](isolated-verifier.md).
+The same harness can prepare and submit the diff, but private grading/signing
+runs on an independently controlled host. Local session hashes remain drift
+checks; they do not establish that trust boundary.
+
 Evals can begin with a conversation about the person's target rather than a
 prewritten suite. The harness inspects the project, asks only missing questions,
 saves the answers, connects the real app, and executes the selected workflow.

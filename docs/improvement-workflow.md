@@ -1,5 +1,9 @@
 # Evaluate and improve from the coding workflow
 
+For an agent-resistant verification boundary, use the
+[external patch verifier](isolated-verifier.md). This page describes the local
+improvement loop; its hashes are in-session drift checks, not isolation.
+
 Evals is built for a person and their coding agent to improve an AI application
 together. The person defines useful behavior and reviews the result. Claude Code
 or Codex connects the real application, writes evaluations, reads failures, edits

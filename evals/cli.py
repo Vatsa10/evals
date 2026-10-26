@@ -108,9 +108,67 @@ def main(argv=None):
         command = improvement_commands.add_parser(name)
         command.add_argument("session", type=Path)
     commands.add_parser("doctor", help="Show engine and Python versions")
+    importer = commands.add_parser("import-openai", help="Import simple OpenAI input/ideal JSONL without running models")
+    importer.add_argument("source", type=Path)
+    importer.add_argument("--name", required=True)
+    importer.add_argument("--adapter", required=True)
+    importer.add_argument("--split", default="dev")
+    importer.add_argument("--dataset-version", default="v1")
+    importer.add_argument("--output", type=Path, required=True)
+    verifier = commands.add_parser("verifier", help="External trusted-runner patch verification and decision signatures")
+    verification_commands = verifier.add_subparsers(dest="verifier_command", required=True)
+    keys = verification_commands.add_parser("keygen")
+    keys.add_argument("--private-key", type=Path, required=True)
+    keys.add_argument("--public-key", type=Path, required=True)
+    submission = verification_commands.add_parser("submit", help="Extract only the current tracked application diff")
+    submission.add_argument("--source-repo", type=Path, default=Path('.'))
+    submission.add_argument("--source-ref", required=True)
+    submission.add_argument("--allow", action="append", required=True)
+    submission.add_argument("--output", type=Path, required=True)
+    for name in ("check", "finish"):
+        verify = verification_commands.add_parser(name, help="Recompute pinned baseline and candidate in isolated targets")
+        for flag in ("source-repo", "source-ref", "contract-repo", "contract-ref", "patch", "private-key", "output", "request-id"):
+            verify.add_argument('--' + flag, required=True)
+        verify.add_argument("--contract-file", default="contract.json")
+        verify.add_argument("--review", help="Trusted human/LLM diff review record, bound to the patch hash")
+    receipt = verification_commands.add_parser("verify-decision", help="Authenticate a decision against an independently trusted public key")
+    receipt.add_argument("decision", type=Path)
+    receipt.add_argument("--public-key", type=Path, required=True)
+    receipt.add_argument("--patch", type=Path, required=True)
+    receipt.add_argument("--contract-ref", required=True)
+    receipt.add_argument("--source-ref", required=True)
+    receipt.add_argument("--request-id", required=True)
+    receipt.add_argument("--contract-file", default="contract.json")
     args = parser.parse_args(argv)
     try:
-        if args.command == "brief":
+        if args.command == "import-openai":
+            from evals.openai_import import import_jsonl
+            result = import_jsonl(args.source, name=args.name, adapter=args.adapter, output=args.output,
+                                  split=args.split, version=args.dataset_version)
+            print(json.dumps({'suite': result['name'], 'cases': len(result['cases']), 'output': str(args.output)}, indent=2))
+        elif args.command == "verifier":
+            from evals import verifier
+            from evals.artifacts import read_json
+            from evals import signing
+            if args.verifier_command == "keygen":
+                signing.keygen(args.private_key, args.public_key)
+                print("Created verifier key pair. Keep the private key outside agent-accessible storage.")
+            elif args.verifier_command == "submit":
+                print(json.dumps(verifier.submit(args.source_repo, args.source_ref, args.allow, args.output), indent=2))
+            elif args.verifier_command == "verify-decision":
+                record = verifier.verify_decision(read_json(args.decision), args.public_key, patch=args.patch,
+                    source_ref=args.source_ref, contract_ref=args.contract_ref, request_id=args.request_id,
+                    contract_file=args.contract_file)
+                print(json.dumps(record, indent=2))
+                return int(not record['verification_eligible'])
+            else:
+                result = verifier.launch(source_repo=args.source_repo, source_ref=args.source_ref,
+                    contract_repo=args.contract_repo, contract_ref=args.contract_ref,
+                    patch_path=args.patch, private_key=args.private_key, output=args.output,
+                    request_id=args.request_id, contract_file=args.contract_file, review_path=args.review)
+                print(json.dumps(result, indent=2))
+                return int(not result['verification_eligible'])
+        elif args.command == "brief":
             from evals import briefs
             from evals.artifacts import read_json
             if args.brief_command == "init":

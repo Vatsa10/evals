@@ -14,6 +14,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - run: python -m pip install -r verifier-requirements.lock
       - run: python scripts/check_framework.py
       - run: python scripts/build_plugin.py dist/evals-marketplace
       - run: python -m evals init .evals/smoke
@@ -21,3 +22,13 @@ jobs:
       - run: python -m evals summarize .evals/smoke-report.json --output .evals/smoke-summary.json
       - run: python dist/evals-marketplace/plugins/evals/scripts/evals.py brief init .evals/smoke-brief.json --project-root .
       - run: python dist/evals-marketplace/plugins/evals/scripts/evals.py report-site .evals/smoke-report.json --output .evals/smoke-site
+  isolated-verifier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -r verifier-requirements.lock
+      - run: python scripts/check_verifier_docker.py --pull

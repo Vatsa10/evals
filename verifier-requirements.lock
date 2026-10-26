@@ -1,0 +1,5 @@
+# Trusted supervisor dependencies. Contract-specific grader dependencies belong
+# in the pinned private contract tree and the operator's reproducible runner.
+cryptography==46.0.7
+cffi==2.1.1
+pycparser==3.12

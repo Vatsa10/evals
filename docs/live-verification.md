@@ -1,5 +1,32 @@
 # Live verification
 
+## Version 0.5.0: external patch verification
+
+Verified on 2026-10-26 with actual Docker Engine 28.4.0 containers, a pinned
+Python image, temporary source/private-contract Git repositories and ephemeral
+Ed25519 keys. These tests exercise a synthetic refund-policy application with
+no target model calls. The application's boundary fix improves public cases
+from 1/2 to 2/2 while retaining 2/2 private holdout successes.
+
+All **111 automated tests** pass. Ten additional Docker integration scenarios
+pass: valid improvement, direct isolation probes, public-input hardcoding,
+forged verdicts, runner monkeypatching, skip-as-output, protected-file edits,
+out-of-allowlist edits, symlink escape, and the actual protected-job entrypoint.
+The entrypoint test authenticates the published decision, confirms temporary
+key removal and confirms only `decision.json` is published. Direct probes
+confirm isolated interpreter startup, absent contract/key/Git/verifier/socket,
+read-only/chmod-resistant application mounts and disabled network.
+
+Summary evidence: [isolated verifier checks](evidence/isolated-verifier-2026-10-26.json).
+Reproduce with `python scripts/check_verifier_docker.py --pull`.
+
+The local environment runs both sides for development; this does not establish
+independent account isolation from this host-side coding agent. The production
+manual workflow is supplied but no protected environment, private grading repo
+or signing secret has been provisioned or used. The isolated profile currently
+supports offline Python adapters and native suites; no pytest backend or live
+API gateway is claimed. See the [operator guide](isolated-verifier.md).
+
 ## Version 0.4.0: guided command intake
 
 Verified on 2026-10-25 in real Codex CLI 0.164.0 and Claude Code 2.1.310 sessions.
