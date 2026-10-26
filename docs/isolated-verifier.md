@@ -173,7 +173,7 @@ invalid submissions yield `rejected`. Ineligible decisions exit 1; invocation
 failures exit 2.
 
 `decision.json` is a signed envelope containing contract commit/whole-tree
-SHA256, engine SHA256, source commit/exported-tree SHA256, patch SHA256, target
+SHA256, engine SHA256, source commit/exported-tree and candidate-tree SHA256, patch SHA256, target
 image digest, supervisor Python/platform, request ID, review, count result and
 aggregate outcomes and private-evidence hashes. Detailed observations,
 case inventories and errors live

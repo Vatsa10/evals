@@ -259,6 +259,23 @@ class VerifierTests(unittest.TestCase):
                             source_ref=self.source_ref, contract_ref=self.contract_ref,
                             request_id='request-1', contract_file='another-policy.json')
 
+    def test_pinned_executable_modes_survive_patch_reconstruction(self):
+        self.app.write_text(ORIGINAL)
+        git(self.source, 'add', '--all')
+        git(self.source, 'update-index', '--chmod=+x', '--', 'app/adapter.py')
+        git(self.source, '-c', 'user.name=Verifier Test', '-c', 'user.email=verifier@example.invalid',
+            'commit', '-qm', 'executable adapter')
+        pinned = git(self.source, 'rev-parse', 'HEAD').decode().strip()
+        exported = self.root / 'export'
+        exported.mkdir()
+        _, entries = pinned_tree(self.source, pinned, exported, paths=['app'])
+        self.assertEqual(entries['app/adapter.py']['mode'], '100755')
+        self.app.write_text(FIXED)
+        self.app.chmod(0o755)
+        patch = git(self.source, 'diff', '--no-renames', pinned)
+        apply_patch(exported, patch, ['app'], source_entries=entries)
+        self.assertTrue(git(exported, 'ls-files', '--stage').startswith(b'100755'))
+
 
 class ResourceLimitTests(unittest.TestCase):
     def test_output_flood_is_bounded(self):

@@ -119,6 +119,7 @@ def pinned_tree(repo, ref, destination, *, paths=None):
         path = destination / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(content)
+        path.chmod(0o755 if mode == '100755' else 0o644)
         entries[name] = {'mode': mode, 'sha256': sha(content)}
     if not entries:
         raise ValueError('Pinned tree/application export is empty')
@@ -159,11 +160,18 @@ def validate_contract(contract):
         raise ValueError('require_review must be a boolean')
 
 
-def apply_patch(candidate, patch, paths):
+def apply_patch(candidate, patch, paths, *, source_entries=None):
     if not patch or len(patch) > PATCH_LIMIT or not patch.startswith(b'diff --git '):
         raise ValueError('Submit a nonempty Git diff within the 2 MiB limit')
     git(candidate, 'init', '-q')
     git(candidate, 'add', '--all')
+    # Windows Git may infer different executable bits from its filesystem.
+    # Seed the index from pinned Git modes before checking the diff.
+    if source_entries:
+        for mode, flag in [('100755', '+x'), ('100644', '-x')]:
+            names = [name for name, entry in source_entries.items() if entry['mode'] == mode]
+            for offset in range(0, len(names), 32):
+                git(candidate, 'update-index', '--chmod=' + flag, '--', *names[offset:offset + 32])
     # Reject copies as well as renames, even when Git reports a textual stat.
     if re.search(rb'(?m)^(?:rename|copy) (?:from|to) ', patch):
         raise ValueError('Renames and copies are forbidden; submit --no-renames')
@@ -320,19 +328,27 @@ def execute(*, source_repo, source_ref, contract_repo, contract_ref, patch_path,
             validate_contract(contract)
             record['environment_image_digest'] = contract['environment_image']
             baseline.mkdir()
-            record['source_tree_sha256'], _ = pinned_tree(source_repo, source_ref, baseline,
-                                                         paths=contract['application_paths'])
+            record['source_tree_sha256'], source_entries = pinned_tree(
+                source_repo, source_ref, baseline, paths=contract['application_paths'])
             shutil.copytree(baseline, candidate)
-            record['changed_paths'] = apply_patch(candidate, patch, contract['application_paths'])
+            record['changed_paths'] = apply_patch(candidate, patch, contract['application_paths'],
+                                                   source_entries=source_entries)
             # Remove Git metadata by exporting only the index's files to a clean mount.
             app_candidate = root / 'application'
             app_candidate.mkdir()
-            for row in git(candidate, 'ls-files', '-z').split(b'\0'):
+            candidate_entries = {}
+            for row in git(candidate, 'ls-files', '--stage', '-z').split(b'\0'):
                 if row:
-                    name = safe_path(row.decode('utf-8'))
+                    metadata, raw_name = row.split(b'\t', 1)
+                    mode = metadata.split(b' ', 1)[0].decode()
+                    name = safe_path(raw_name.decode('utf-8'))
                     dest = app_candidate / name
                     dest.parent.mkdir(parents=True, exist_ok=True)
-                    dest.write_bytes((candidate / name).read_bytes())
+                    content = (candidate / name).read_bytes()
+                    dest.write_bytes(content)
+                    dest.chmod(0o755 if mode == '100755' else 0o644)
+                    candidate_entries[name] = {'mode': mode, 'sha256': sha(content)}
+            record['candidate_tree_sha256'] = sha(canonical(candidate_entries))
             specs = []
             for split in ('public', 'holdout'):
                 for name in contract[split + '_suites']:
@@ -454,8 +470,8 @@ def submit(source_repo, source_ref, paths, output):
     # executing the application or sending any grading data to the agent.
     with tempfile.TemporaryDirectory(prefix='evals-submit-') as temporary:
         app = Path(temporary)
-        pinned_tree(source_repo, source_ref, app, paths=paths)
-        changed = apply_patch(app, patch, paths)
+        _, source_entries = pinned_tree(source_repo, source_ref, app, paths=paths)
+        changed = apply_patch(app, patch, paths, source_entries=source_entries)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(patch)
     return {'patch': str(output.resolve()), 'patch_sha256': sha(patch), 'source_commit': source_ref,

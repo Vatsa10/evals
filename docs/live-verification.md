@@ -1,6 +1,6 @@
 # Live verification
 
-## Version 0.5.0: external patch verification
+## Version 0.5.1: external patch verification
 
 Verified on 2026-10-26 with actual Docker Engine 28.4.0 containers, a pinned
 Python image, temporary source/private-contract Git repositories and ephemeral
@@ -8,7 +8,8 @@ Ed25519 keys. These tests exercise a synthetic refund-policy application with
 no target model calls. The application's boundary fix improves public cases
 from 1/2 to 2/2 while retaining 2/2 private holdout successes.
 
-All **111 automated tests** pass. Ten additional Docker integration scenarios
+All **112 automated tests** pass, including preserving Git executable modes
+through source reconstruction. Ten additional Docker integration scenarios
 pass: valid improvement, direct isolation probes, public-input hardcoding,
 forged verdicts, runner monkeypatching, skip-as-output, protected-file edits,
 out-of-allowlist edits, symlink escape, and the actual protected-job entrypoint.

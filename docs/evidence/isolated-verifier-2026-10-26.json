@@ -274,8 +274,8 @@
       "only_decision_published": true
     }
   ],
-  "source_commit": "f55aa5ca11e45a385acef6c497dd32bf09f9a581",
-  "contract_commit": "da4650c37d45118c8083bcf0408332f178751dac",
+  "source_commit": "bb2bcc4909bca74dd6b399ddc3306448753f95e0",
+  "contract_commit": "713d38cd9f93f7e0da5a9c46918f187c8b2ee7a4",
   "isolation_probe": {
     "isolated_interpreter": true,
     "no_contract": true,
