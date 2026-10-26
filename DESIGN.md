@@ -17,7 +17,16 @@ pages work offline without external dependencies.
 - Controls: consistent 8px corners and at least 40px height.
 - Typography: system sans; monospace identifiers and hashes.
 
-## Layout and behavior
+## Landing page typography
+
+The marketing site retains Geist and Geist Mono with a readable `rem` scale:
+17px base, 18px lead copy, 16px descriptions and controls, 15px code and 13px
+metadata at the browser's default root size. Mobile breakpoints rearrange panels
+instead of shrinking their text. Code scroll stays within its own block; mobile
+copy buttons occupy a separate row. Browser checks enforce these minimum sizes,
+panel bounds and caption spacing from 320px through 1440px.
+
+## Report layout and behavior
 
 Use a compact report header, provenance strip, category coverage table, filter
 toolbar, and case table. Stack controls on narrow screens; contain horizontal

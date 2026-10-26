@@ -1,8 +1,11 @@
 """Browser checks for the static landing page (requires Playwright for development)."""
 
 import argparse
+from functools import partial
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
+import threading
 
 from playwright.sync_api import sync_playwright
 
@@ -21,7 +24,7 @@ def check(base_url, output, inspect_only=False):
     results = []
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
-        for width in (1440, 1024, 768, 390, 360):
+        for width in (1440, 1024, 900, 768, 720, 390, 375, 360, 320):
             context = browser.new_context(viewport={"width": width, "height": 1000 if width > 720 else 844},
                                           permissions=["clipboard-read", "clipboard-write"])
             page = context.new_page()
@@ -44,6 +47,13 @@ def check(base_url, output, inspect_only=False):
                 context.close()
                 continue
             assert not overflow, f"Horizontal page overflow at {width}px"
+            assert page.locator('.guide-tabs').get_attribute('aria-orientation') == ('horizontal' if width <= 1000 else 'vertical')
+            for selector, minimum in [('body', 17), ('.hero-description', 18), ('.flow-step>p', 16),
+                                      ('.way-tab small', 16), ('.guide-step>p', 16),
+                                      ('.code-block pre', 15), ('.monitor-copy>p', 16),
+                                      ('.faq-list summary', 18), ('.faq-list details>p', 16)]:
+                sizes = page.locator(selector).evaluate_all("elements => elements.map(e => parseFloat(getComputedStyle(e).fontSize))")
+                assert sizes and min(sizes) >= minimum, f"Unreadable {selector} at {width}px: {sizes}"
             page.locator('[data-demo-version="before"]').click()
             assert page.locator('#demo-score').inner_text().startswith('2'), "Before-fix example is wrong"
             page.locator('[data-demo-version="after"]').click()
@@ -90,7 +100,12 @@ def check(base_url, output, inspect_only=False):
             assert not errors, f"Browser errors at {width}px: {errors}"
             assert not failed_assets, f"Missing assets at {width}px: {failed_assets}"
             assert not page.evaluate("document.documentElement.scrollWidth > innerWidth"), f"Overflow after interactions at {width}px"
-            results.append({"viewport": width, "checks": "passed"})
+            for selector in ('.evaluation-window', '.way-preview', '.setup-shell', '.monitor-visual'):
+                clipped = page.locator(selector).evaluate("e => e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1")
+                assert not clipped, f"Panel clips content at {width}px: {selector}"
+            caption_gap = page.evaluate("document.querySelector('.visual-caption').getBoundingClientRect().top - document.querySelector('.evaluation-window').getBoundingClientRect().bottom")
+            assert caption_gap >= 8, f"Example caption overlaps its panel at {width}px"
+            results.append({"viewport": width, "checks": "passed", "readable_typography": "passed"})
             context.close()
         if not inspect_only:
             context = browser.new_context(viewport={"width": 1280, "height": 800}, reduced_motion="reduce")
@@ -112,5 +127,21 @@ if __name__ == '__main__':
     parser.add_argument('--url', default='http://127.0.0.1:4173/')
     parser.add_argument('--output', type=Path, default=Path('.evals/website-checks'))
     parser.add_argument('--inspect', action='store_true')
+    parser.add_argument('--serve', action='store_true', help='Serve the local website on a temporary loopback port')
     args = parser.parse_args()
-    check(args.url, args.output, args.inspect)
+    if args.serve:
+        class QuietHandler(SimpleHTTPRequestHandler):
+            def log_message(self, format, *args):
+                pass
+        handler = partial(QuietHandler, directory=str(Path(__file__).resolve().parents[1] / 'website'))
+        server = ThreadingHTTPServer(('127.0.0.1', 0), handler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            check(f'http://127.0.0.1:{server.server_port}/', args.output, args.inspect)
+        finally:
+            server.shutdown()
+            server.server_close()
+            worker.join(timeout=5)
+    else:
+        check(args.url, args.output, args.inspect)

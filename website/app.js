@@ -71,11 +71,13 @@
     if (!mobileMenu.hidden && !$('.site-header').contains(event.target)) closeMenu();
   });
   const mobileViewport = window.matchMedia('(max-width: 720px)');
+  const horizontalGuides = window.matchMedia('(max-width: 1000px)');
   function syncNavigationLayout() {
     closeMenu();
-    $('.guide-tabs').setAttribute('aria-orientation', mobileViewport.matches ? 'horizontal' : 'vertical');
+    $('.guide-tabs').setAttribute('aria-orientation', horizontalGuides.matches ? 'horizontal' : 'vertical');
   }
   mobileViewport.addEventListener('change', syncNavigationLayout);
+  horizontalGuides.addEventListener('change', syncNavigationLayout);
   syncNavigationLayout();
 
   // Tilt only responds to fine pointers. The readable run stays almost frontal.
