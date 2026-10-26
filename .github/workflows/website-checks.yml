@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: website-readability-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   browser:
     runs-on: ubuntu-latest
@@ -26,8 +30,9 @@ jobs:
         with:
           python-version: '3.13'
       - run: python -m pip install playwright==1.64.1
-      - run: python -m playwright install --with-deps chromium
-      - run: python scripts/check_website.py --serve --output .evals/website-checks
+      # GitHub's Ubuntu runner already contains Chrome and its dependencies.
+      - run: google-chrome --version
+      - run: python scripts/check_website.py --serve --browser-channel chrome --output .evals/website-checks
       - uses: actions/upload-artifact@v4
         if: always()
         with:

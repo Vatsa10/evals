@@ -19,11 +19,11 @@ def reveal_page(page):
     page.wait_for_timeout(900)
 
 
-def check(base_url, output, inspect_only=False):
+def check(base_url, output, inspect_only=False, browser_channel=None):
     output.mkdir(parents=True, exist_ok=True)
     results = []
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
+        browser = playwright.chromium.launch(channel=browser_channel)
         for width in (1440, 1024, 900, 768, 720, 390, 375, 360, 320):
             context = browser.new_context(viewport={"width": width, "height": 1000 if width > 720 else 844},
                                           permissions=["clipboard-read", "clipboard-write"])
@@ -128,6 +128,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, default=Path('.evals/website-checks'))
     parser.add_argument('--inspect', action='store_true')
     parser.add_argument('--serve', action='store_true', help='Serve the local website on a temporary loopback port')
+    parser.add_argument('--browser-channel', choices=['chrome'], help='Use an installed Chrome instead of downloading Chromium')
     args = parser.parse_args()
     if args.serve:
         class QuietHandler(SimpleHTTPRequestHandler):
@@ -138,10 +139,10 @@ if __name__ == '__main__':
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         try:
-            check(f'http://127.0.0.1:{server.server_port}/', args.output, args.inspect)
+            check(f'http://127.0.0.1:{server.server_port}/', args.output, args.inspect, args.browser_channel)
         finally:
             server.shutdown()
             server.server_close()
             worker.join(timeout=5)
     else:
-        check(args.url, args.output, args.inspect)
+        check(args.url, args.output, args.inspect, args.browser_channel)
